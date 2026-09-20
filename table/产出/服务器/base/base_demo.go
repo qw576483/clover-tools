@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// 表 "demo" 的一行（强类型）。
+// BaseDemoRow 表 "demo" 的一行（强类型）。
 type BaseDemoRow struct {
 	IAmInt int // 数字
 	IAmInt32 int32 // 数字
@@ -22,29 +22,29 @@ type BaseDemoRow struct {
 	IAmVector3 Vector3 // xzy
 }
 
-// 表 "demo" 的只读容器（按主键索引）。
+// BaseDemoTable 表 "demo" 的只读容器（按主键索引）。
 type BaseDemoTable struct {
 	rows  []*BaseDemoRow
 	index map[int]*BaseDemoRow
 }
 
-// 创建空表。
+// NewBaseDemoTable 创建空表。
 func NewBaseDemoTable() *BaseDemoTable {
 	return &BaseDemoTable{index: make(map[int]*BaseDemoRow)}
 }
 
-// 按主键取行（不存在返回 nil）。
+// Get 按主键取行（不存在返回 nil）。
 func (t *BaseDemoTable) Get(id int) *BaseDemoRow {
 	return t.index[id]
 }
 
-// 当前行数。
+// Len 当前行数。
 func (t *BaseDemoTable) Len() int { return len(t.rows) }
 
-// 返回全部行（只读视图）。
+// Rows 返回全部行（只读视图）。
 func (t *BaseDemoTable) Rows() []*BaseDemoRow { return t.rows }
 
-// 从 tsv 文本加载（首行为列名表头，'\t' 分隔）。整体替换旧数据。
+// Load 从 tsv 文本加载（首行为列名表头，'\t' 分隔）。整体替换旧数据。
 // redis 等内存源拿到原始 tsv 文本直接传 content；file 源由 registry 读取后传入。
 func (t *BaseDemoTable) Load(content string) error {
 	r := csv.NewReader(strings.NewReader(content))
@@ -80,7 +80,7 @@ func (t *BaseDemoTable) Load(content string) error {
 	return nil
 }
 
-// 清空全部数据。
+// Clear 清空全部数据。
 func (t *BaseDemoTable) Clear() {
 	t.rows = nil
 	t.index = make(map[int]*BaseDemoRow)

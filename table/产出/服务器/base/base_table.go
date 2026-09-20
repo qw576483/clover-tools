@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// 三维向量（策划用 ';' 或 ',' 分隔的三个浮点数）。
+// Vector3 三维向量（策划用 ';' 或 ',' 分隔的三个浮点数）。
 type Vector3 struct {
 	X float32
 	Y float32
 	Z float32
 }
 
-// 安全取第 i 个单元格（越界返回空串）。
+// cell 安全取第 i 个单元格（越界返回空串）。
 func cell(rec []string, i int) string {
 	if i < 0 || i >= len(rec) {
 		return ""
@@ -73,7 +73,7 @@ func parseFloat64(s string) float64 {
 	return v
 }
 
-// 解析 "k;v|k;v" 或 "k:v|k:v"（';' 与 ':' 均可作 kv 分隔）。
+// parseMapIntInt 解析 "k;v|k;v" 或 "k:v|k:v"（';' 与 ':' 均可作 kv 分隔）。
 func parseMapIntInt(s string) map[int]int {
 	out := map[int]int{}
 	s = strings.TrimSpace(s)
@@ -99,7 +99,7 @@ func parseMapIntInt(s string) map[int]int {
 	return out
 }
 
-// 解析 "k;v|k;v"（value 为原样字符串）。
+// parseMapIntString 解析 "k;v|k;v"（value 为原样字符串）。
 func parseMapIntString(s string) map[int]string {
 	out := map[int]string{}
 	s = strings.TrimSpace(s)
@@ -123,7 +123,7 @@ func parseMapIntString(s string) map[int]string {
 	return out
 }
 
-// 解析 "a;b;c"（';' 分隔）。
+// parseSliceInt 解析 "a;b;c"（';' 分隔）。
 func parseSliceInt(s string) []int {
 	out := []int{}
 	s = strings.TrimSpace(s)
@@ -140,7 +140,7 @@ func parseSliceInt(s string) []int {
 	return out
 }
 
-// 解析 "a;b;c"（';' 分隔，保留原样）。
+// parseSliceString 解析 "a;b;c"（';' 分隔，保留原样）。
 func parseSliceString(s string) []string {
 	out := []string{}
 	s = strings.TrimSpace(s)
@@ -153,7 +153,7 @@ func parseSliceString(s string) []string {
 	return out
 }
 
-// 解析 "x;y;z" 或 "x,y,z"，取前三个浮点。
+// parseVector3 解析 "x;y;z" 或 "x,y,z"，取前三个浮点。
 func parseVector3(s string) Vector3 {
 	var v Vector3
 	s = strings.TrimSpace(s)

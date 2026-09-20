@@ -4,26 +4,26 @@ package table
 
 import "table/base"
 
-// 是 BaseDemoTable 的业务扩展层（嵌入 base，自动获得 Row/Table/Get/Load 能力）。
+// DemoTable 是 BaseDemoTable 的业务扩展层（嵌入 base，自动获得 Row/Table/Get/Load 能力）。
 type DemoTable struct {
 	*base.BaseDemoTable
 }
 
-// 构建业务表（底层为 base 表）。
+// NewDemoTable 构建业务表（底层为 base 表）。
 func NewDemoTable() *DemoTable {
 	return &DemoTable{BaseDemoTable: base.NewBaseDemoTable()}
 }
 
-// 加载前钩子（按需覆写）。
+// OnBeforeLoad 加载前钩子（按需覆写）。
 func (t *DemoTable) OnBeforeLoad() {}
 
-// 逐行加载钩子（按需覆写）；row 为该行强类型视图。
+// OnLoadRow 逐行加载钩子（按需覆写）；row 为该行强类型视图。
 func (t *DemoTable) OnLoadRow(row *base.BaseDemoRow) {}
 
-// 加载后钩子（按需覆写）。
+// OnAfterLoad 加载后钩子（按需覆写）。
 func (t *DemoTable) OnAfterLoad() {}
 
-// 从 tsv 文本加载，并在加载前/中/后触发钩子。
+// Load 从 tsv 文本加载，并在加载前/中/后触发钩子。
 func (t *DemoTable) Load(content string) error {
 	t.OnBeforeLoad()
 	if err := t.BaseDemoTable.Load(content); err != nil {

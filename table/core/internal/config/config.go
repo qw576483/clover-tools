@@ -2,7 +2,7 @@
 //
 // 配置决定：
 //   - 策划表目录（扫描其中的 xls/xlsx）；
-//   - 服务器 / 客户端各自的输出根目录（代码直接写入，tsv 在其下的 tsv/ 子目录）；
+//   - 服务器 / 客户端各自的输出根目录（代码直接写入，tsv 在其下的 tsv/ 或 Tsv/ 子目录）；
 //   - 客户端代码格式（固定 cs）；
 //   - 第 3 行 cs 标列为空时的默认侧（cs/s/c）；
 //   - 对照表输出路径（记录每个 tsv/代码文件来自哪个 xls）。
@@ -30,7 +30,7 @@ type Config struct {
 	// 服务器（Go）输出根目录。代码直接写入此目录（base/ 子包），tsv 写入 tsv/ 子目录。
 	ServerDir string `yaml:"server_dir"`
 
-	// 客户端（cs）输出根目录。代码直接写入此目录（Base/ 子目录），tsv 写入 tsv/ 子目录。
+	// 客户端（cs）输出根目录。代码直接写入此目录（Base/ 子目录），tsv 写入 Tsv/ 子目录。
 	ClientDir string `yaml:"client_dir"`
 
 	// 第 3 行 cs 标列为空时的默认侧：cs / s / c。

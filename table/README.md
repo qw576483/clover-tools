@@ -37,7 +37,7 @@ cd core
 | `default_side` | 第 3 行 cs 为空时默认侧 | `cs` |
 | `mapping_file` | 对照表输出路径 | `../产出/对照表.tsv` |
 
-> tsv 自动推导为 `<server_dir>/tsv` / `<client_dir>/tsv`，无需单独配置。
+> tsv 自动推导为 `<server_dir>/tsv`（服务器）/ `<client_dir>/Tsv`（客户端，C# PascalCase 约定），无需单独配置。
 > 所有相对路径相对于 `config.yaml` 所在目录。
 
 ### 2. 放入策划表
@@ -103,27 +103,32 @@ cd core && go run ./cmd/table
 
 ### 客户端（client_dir 指向的目录）
 
-结构对称，但 base 子目录用大写 `Base`（C# 约定）：
+结构对称，但目录名与文件名遵循 C# 的 PascalCase（`Base/`、`Registry.cs`、`Tsv/`）：
 
 ```
 客户端/
-├── <table>.cs
-├── registry.cs
-├── Base/               # 大写 Base
-│   ├── base_table.cs
-│   └── base_<table>.cs
-└── tsv/
-    └── <table>.tsv
+├── <Table>.cs          # 上层业务（首次生成，不覆盖，可加自定义逻辑）
+├── Registry.cs         # Tables + Default（每次覆盖，勿手改）
+├── Base/               # base 子目录用大写 Base
+│   ├── BaseTable.cs    # 共享运行时（Vector3 + 复合类型解析）
+│   ├── Base<Table>.cs  # Row/Table/Get/Load
+│   └── BaseRegistry.cs
+└── Tsv/                # 大写 Tsv（C# 约定；服务器侧为小写 tsv）
+    └── <Table>.tsv     # 每次覆盖
 ```
+
+> 例：`demo_cs`（逻辑名 `demo`）→ 客户端代码 `Demo.cs` / `Base/BaseDemo.cs`、数据 `Tsv/Demo.tsv`；
+> 服务器代码 `demo.go` / `base/base_demo.go`、数据 `tsv/demo.tsv`。
+> 客户端文件名（含 tsv）按 C# 约定首字母大写，服务器侧保持小写。
 
 ### 覆盖规则
 
 | 产物 | 覆盖策略 |
 |------|---------|
-| `base/*` | 每次覆盖 |
-| 上层 `registry.go` | 每次覆盖（自动纳入新表，勿手改） |
-| 上层 `<table>.go` | 首次生成，不覆盖（可加业务逻辑） |
-| `tsv/*.tsv` | 每次覆盖 |
+| `base/*`（服务器）/ `Base/*`（客户端） | 每次覆盖 |
+| 上层 `registry.go` / `Registry.cs` | 每次覆盖（自动纳入新表，勿手改） |
+| 上层 `<table>.go` / `<Table>.cs` | 首次生成，不覆盖（可加业务逻辑） |
+| `tsv/*.tsv`（服务器）/ `Tsv/*.tsv`（客户端） | 每次覆盖 |
 
 ---
 
@@ -188,10 +193,12 @@ hero := table.Default.Demo.Get(1) // 强类型访问
 
 ## 对照表
 
-每次打表生成 `对照表.tsv`，记录每个产物文件来自哪个 xls 的哪个 sheet（含侧 / base 标记），便于追溯。
+每次打表生成 `对照表.tsv`（两列：`source_file` / `sheet`），逐个产物文件记录它来自哪个 xls 的哪个 sheet，便于追溯。
 
 ---
 
 ## 详细参考
 
-- 完整设计说明、加载事件、引擎集成 → [core/README.md](./core/README.md)
+- 配置字段逐个注释 → [`core/config.yaml`](./core/config.yaml)
+- 命令行用法、产物目录结构、覆盖门控 → [`core/cmd/table/main.go`](./core/cmd/table/main.go)
+- 生成器输出细节 → [`core/internal/gen/go.go`](./core/internal/gen/go.go)（服务器 Go）、[`core/internal/gen/cs.go`](./core/internal/gen/cs.go)（客户端 C#）

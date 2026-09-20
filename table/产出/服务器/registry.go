@@ -6,16 +6,16 @@ import (
 	"path/filepath"
 )
 
-// 持有全部业务表实例（按名索引）。
+// Tables 持有全部业务表实例（按名索引）。
 type Tables struct {
 	Demo *DemoTable
 }
 
-// 全局配置表单例。首次调用 NewTables 时被赋值；引擎加载该实例后，
+// Default 全局配置表单例。首次调用 NewTables 时被赋值；引擎加载该实例后，
 // 业务任意处可直接 table.Default.<表名>.Get(id) 读取，无需再 NewTables。
 var Default *Tables
 
-// 创建全部业务表实例，并设为全局单例 Default。
+// NewTables 创建全部业务表实例，并设为全局单例 Default。
 func NewTables() *Tables {
 	t := &Tables{
 		Demo: NewDemoTable(),
@@ -32,7 +32,7 @@ type tsvTable interface {
 	Len() int
 }
 
-// 单表加载：读取 <dir>/<name>.tsv 并 Load(content)；文件缺失则清空该表；
+// loadTable 单表加载：读取 <dir>/<name>.tsv 并 Load(content)；文件缺失则清空该表；
 // 完成后触发 OnLoadedOne 钩子（由引擎接线到 table.LoadedOne 事件）。
 func loadTable(tbl tsvTable, dir, name string) error {
 	p := filepath.Join(dir, name+".tsv")
@@ -57,7 +57,7 @@ func loadTable(tbl tsvTable, dir, name string) error {
 	return nil
 }
 
-// 从 dir 加载全部业务表（每张表读 <dir>/<逻辑名>.tsv，如 demo.tsv）。
+// LoadAll 从 dir 加载全部业务表（每张表读 <dir>/<逻辑名>.tsv，如 demo.tsv）。
 // 每加载完一张表触发 OnLoadedOne 钩子（由引擎接线到 table.LoadedOne 事件）。
 func (t *Tables) LoadAll(dir string) error {
 	if err := loadTable(t.Demo, dir, "demo"); err != nil {
