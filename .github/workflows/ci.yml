@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  table-core:
+    name: Lint / table/core
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: table/core
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: table/core/go.mod
+          cache-dependency-path: table/core/go.sum
+      - name: go vet
+        run: go vet ./...
+      - name: go test
+        run: go test ./...
