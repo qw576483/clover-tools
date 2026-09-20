@@ -1,0 +1,13 @@
+# npm 依赖（可视化验证工作区）
+node_modules/
+
+# Python 字节码缓存（脚本运行产生）
+__pycache__/
+*.pyc
+
+# 打表工具的本地临时产物
+table/产出/_tmp/
+
+# 系统文件
+.DS_Store
+Thumbs.db
