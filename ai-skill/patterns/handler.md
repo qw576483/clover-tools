@@ -79,7 +79,7 @@ func (l *gameLogic) onXxx(c event.Ctx) error {
 | 项 | 写法 |
 |---|---|
 | 签名 | `func(c event.Ctx) error` |
-| import | [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event.md) |
+| import | [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event/README.md) |
 | 取请求体 | `c.BindMsg(&req)` |
 | 回包 | `g.Reply(c, v)` |
 | 原始字节回包 | `c.MarkReplied(body []byte)` |

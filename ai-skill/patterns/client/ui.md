@@ -1,6 +1,6 @@
 # UI 开发模板
 
-> API 以 [`clover-client-unity-engine/Runtime/**`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/**.md) 为准。表现域模块随 `Game.Launch` **自动挂载**，
+> API 以 `clover-client-unity-engine/Runtime/**` 为准。表现域模块随 `Game.Launch` **自动挂载**，
 > 业务无需初始化即可直接用 `Game.UI` / `Game.Scene` / `Game.Sound` 等
 > （**例外：`Game.Res` 需业务显式 `CloverRes.Init(root)`**——不挂则 `Game.Res` 为 null、资源静默加载失败）。
 > 面板预制体放在 **`Resources/UI/{面板类名}`**（`Game.UI.Open<T>()` 按类名加载）。

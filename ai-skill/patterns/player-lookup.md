@@ -1,6 +1,6 @@
 # 范式：玩家定位查询（跨服在线状态 / 寻址）
 
-> API 取自 [`clover-server-engine/pkg/domain/master`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/master.md) 的 `PlayerLookup`。
+> API 取自 [`clover-server-engine/pkg/domain/master`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/master/README.md) 的 `PlayerLookup`。
 > 句柄由 `master.NewPlayerLookup(g)` 创建（`g` 是 `app.Game`），业务显式持有并调用 `Locate`。
 > 用途：跨服好友「是否在线」、跨服邀请、观战寻址 —— 查某玩家当前在哪个 game 节点。
 

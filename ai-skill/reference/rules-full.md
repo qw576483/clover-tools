@@ -1231,7 +1231,7 @@ description: Clover 全栈开发 skill。**规则层：一字不许违**（**第
 
 - [`clover-server-engine/clover-server-engine-index.md`](https://github.com/qw576483/clover-server-engine/blob/main/clover-server-engine-index.md)、`结构规则.md`、`pkg/<模块>/README.md`、
   `pkg/shared/proto/{msg,push}.go`（消息号真身）、`internal/shared/proto/reply.go`
-- [`clover-client-unity-engine/Runtime/<模块>/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/<模块>/.md)、`Samples~/`、`Tests/`
+- `clover-client-unity-engine/Runtime/<模块>/`、`Samples~/`、`Tests/`
 
 ---
 

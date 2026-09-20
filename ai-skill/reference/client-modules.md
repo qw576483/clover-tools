@@ -1,6 +1,6 @@
 # 客户端模块速查表
 
-> 本表的 API 全部以 [`clover-client-unity-engine/Runtime/**`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/**.md) 源码为准（`Game` 门面见 `Runtime/Core/Game.cs`）。
+> 本表的 API 全部以 `clover-client-unity-engine/Runtime/**` 源码为准（`Game` 门面见 `Runtime/Core/Game.cs`）。
 >
 > **表现域模块现已在门面上全部可用**（Map / UI / Scene / Atlas / Anim / Sound / Camera / Quality / Entity / Pool）。
 > 契约定义在 `Runtime/Core/PresentationContracts.cs`（Core），实现在 `Runtime/Presentation/`（internal），

@@ -2,7 +2,7 @@
 
 > **这是「完整成品」的第一段，也是最容易整段缺失的一段。**
 > **世界上没有一个完整游戏是"打开就直接站在游戏场景里"的** —— 缺了启动与菜单链路，玩家第一眼就判定是半成品。
-> 本范式给出「**状态机（`Game.Fsm`）+ 面板（`Game.UI`）+ 场景（`Game.Scene`）**」的编排写法；API 均以 [`clover-client-unity-engine/Runtime/**`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/**.md) 为准。
+> 本范式给出「**状态机（`Game.Fsm`）+ 面板（`Game.UI`）+ 场景（`Game.Scene`）**」的编排写法；API 均以 `clover-client-unity-engine/Runtime/**` 为准。
 
 ---
 

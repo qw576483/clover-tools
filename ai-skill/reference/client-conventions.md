@@ -455,7 +455,7 @@ UI 的输入模块**同步跟随**所选后端：新后端 → `InputSystemUIInp
 
 - **新功能先不写单测**：本仓库现阶段是**功能优先** —— 实现新能力时不要求同时产出单元测试。
   AI **不应**把「补单测」当作待办项反复汇报，也**不应**以「缺测试」为由阻塞功能交付。
-- **既有测试套件要保持可用**：[`clover-client-unity-engine/Tests/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Tests/.md)（EditMode + PlayMode）里的用例
+- **既有测试套件要保持可用**：[`clover-client-unity-engine/Tests/`](https://github.com/qw576483/clover-client-unity-engine/tree/main/Tests)（EditMode + PlayMode）里的用例
   仍须**能编译、能跑过**；改引擎代码把它们跑红了，属于必须修的回归。
 - **允许为真实缺陷补回归用例**：定位到真实 bug（尤其只在运行时暴露、编译期看不出来的那类）时，
   补一条能复现它的用例是**排查手段**，不算「给新功能写单测」。

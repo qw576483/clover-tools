@@ -21,7 +21,7 @@
 | **本项目 skill**（**本项目根**下的 `tools/ai-skill/`、`.codebuddy/`、`.cursor/rules`、`AGENTS.md`、`CLAUDE.md` …） | 这个项目特有的**约定与禁止事项** | 🥇 **最高** |
 | **本项目文档**（**本项目根**下的 `docs/`、`策划/`、README、验收表 …） | 这个项目**打算怎么做**、已经定下的取舍 | 🥇 **最高** |
 | **本项目源码**（**本项目里**已存在的实现） | **既有写法**：API 名、模块入口、目录、日志前缀、错误处理风格 | 🥇 **最高** |
-| **引擎源码**（[`clover-client-unity-engine/Runtime/**`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/**.md)、[`clover-server-engine/**`](https://github.com/qw576483/clover-server-engine/blob/main/**.md)） | 能力**真实签名与行为**（唯一不会骗人的地方） | 🥈 **其次** |
+| **引擎源码**（`clover-client-unity-engine/Runtime/**`、`clover-server-engine/**`） | 能力**真实签名与行为**（唯一不会骗人的地方） | 🥈 **其次** |
 | **引擎文档**（`clover-doc/`、`*-engine-index.md`、`结构规则.md`） | 机制 / 原理 / 推荐用法 | 🥈 **其次** |
 | **引擎 skill（含本 skill）**：`SKILL.md`、`patterns/**`、`experience/**` | 通用做法与形状（**给做法，不给能直接抄的 API**） | 🥈 **其次** |
 | **联网搜索** | 以上都没有、或你没见过的问题：框架/引擎/平台的**通用解法**、报错含义、版本差异 | 🥉 **再次**（参考，不是权威） |
@@ -95,8 +95,8 @@
 
 | 想知道 | 去看 |
 |---|---|
-| 服务端概念、术语、机制原理 | [`clover-doc/server/concepts/`](https://github.com/qw576483/clover-doc/blob/main/server/concepts/.md) |
-| 服务端开发指引（handler / 配表 / 挂载…） | [`clover-doc/server/development/`](https://github.com/qw576483/clover-doc/blob/main/server/development/.md) |
+| 服务端概念、术语、机制原理 | [`clover-doc/server/concepts/`](https://github.com/qw576483/clover-doc/tree/main/server/concepts) |
+| 服务端开发指引（handler / 配表 / 挂载…） | [`clover-doc/server/development/`](https://github.com/qw576483/clover-doc/tree/main/server/development) |
 | 服务端上手 | [`clover-doc/server/getting-started.md`](https://github.com/qw576483/clover-doc/blob/main/server/getting-started.md)、`quickstart.md`、`install.md` |
 | WorldSync / MMO | [`clover-doc/server/concepts/mmo-worldsync.md`](https://github.com/qw576483/clover-doc/blob/main/server/concepts/mmo-worldsync.md) |
 | 服务端示例 / 运维 / 工具 / 安全 | [`clover-doc/server/{examples,operations,tools,security}/`](https://github.com/qw576483/clover-doc/blob/main/server/{examples,operations,tools,security}/.md) |
@@ -110,10 +110,10 @@
 | 想知道 | 去看 |
 |---|---|
 | 引擎架构 / 模块总览 | [`clover-server-engine/clover-server-engine-index.md`](https://github.com/qw576483/clover-server-engine/blob/main/clover-server-engine-index.md)、`结构规则.md` |
-| 某模块实现（data / master / log / auth / mmo / room / object） | [`clover-server-engine/internal/<模块>/`](https://github.com/qw576483/clover-server-engine/blob/main/internal/<模块>/.md)、`pkg/domain/<模块>/` |
+| 某模块实现（data / master / log / auth / mmo / room / object） | `clover-server-engine/internal/<模块>/`、`pkg/domain/<模块>/` |
 | 消息号 / 线格式 / 协议 | `pkg/shared/proto/{msg,push}.go`（消息号真身）、`internal/shared/proto/reply.go` |
-| 客户端 API 真实用法 | [`clover-client-unity-engine/Samples~/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Samples~/.md)、`Tests/` |
-| 客户端 API 签名 / 类名 | [`clover-client-unity-engine/Runtime/<模块>/*.cs`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/<模块>/*.cs) |
+| 客户端 API 真实用法 | [`clover-client-unity-engine/Samples~/`](https://github.com/qw576483/clover-client-unity-engine/tree/main/Samples~)、`Tests/` |
+| 客户端 API 签名 / 类名 | `clover-client-unity-engine/Runtime/<模块>/*.cs` |
 | Unity CLI 命令 | `unity skill show`、`unity --help` |
 
 **"搞懂"的判定标准** —— 动手写代码前必须能回答，答不出就是没懂，回去继续查：
@@ -168,7 +168,7 @@
 
 | 侧 | 用法 | 出处 |
 |---|---|---|
-| 服务端 | `logger.Infof / Warnf / Errorf(...)`，来自 [`clover-server-engine/pkg/foundation/logger`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/foundation/logger.md) | [`clover-doc/server/examples/timer.md`](https://github.com/qw576483/clover-doc/blob/main/server/examples/timer.md) |
+| 服务端 | `logger.Infof / Warnf / Errorf(...)`，来自 [`clover-server-engine/pkg/foundation/logger`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/foundation/logger/README.md) | [`clover-doc/server/examples/timer.md`](https://github.com/qw576483/clover-doc/blob/main/server/examples/timer.md) |
 | 客户端 | `Game.Logger.Info / Warn / Error(tag, msg)`（**永不为 null**） | [`clover-client-unity-engine/Runtime/Core/Logger.cs`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/Core/Logger.cs) |
 
 - **禁止**服务端用标准库 `log.Printf`、客户端用裸 `Debug.Log` 打业务日志。
@@ -332,7 +332,7 @@ clover-server-tools/windows-env/core/env.exe info    # 未起 → start；整个
 2. **先建 Def/**：**写任何网络代码之前**，必须先创建 `Assets/Scripts/Def/`（模板见 `patterns/client/network.md` 模板 0）：
    - `MsgDef.cs`：业务消息号常量（唯一定义处）
    - `ProtoDef.cs`：协议结构体
-3. **套范式**：从 `patterns/client/` 取模板；没有对应模板时先查 [`clover-doc/client/`](https://github.com/qw576483/clover-doc/blob/main/client/.md)，再看 `Samples~/`、`Tests/`、`Runtime/**/*.cs`。
+3. **套范式**：从 `patterns/client/` 取模板；没有对应模板时先查 [`clover-doc/client/`](https://github.com/qw576483/clover-doc/tree/main/client)，再看 `Samples~/`、`Tests/`、`Runtime/**/*.cs`。
 4. **守约定**：生成代码前必读 `reference/client-conventions.md`。
 5. **校验**：**每条非预期分支都要打日志**，统一用 `Game.Logger.*`，**禁止裸 `Debug.Log` 打业务日志**。
 6. **可运行交付（不许丢手工活给用户）**：场景由 AI 创建并保存、加进 Build Settings，业务脚本由 AI `AddComponent` 挂上，
@@ -407,7 +407,7 @@ clover-server-tools/windows-env/core/env.exe info    # 未起 → start；整个
   `g.Alert(c, &proto.EAlertNotify{...})` / `g.SendEventToPlayer(c, ...)`。准确签名见 `patterns/handler.md`。
 - 写入模型是 **Load-Modify-Return**：`g.LoadStruct(c, schema, id, &v)` 读出后直接改字段，
   handler 返回后引擎自动 Commit，无需显式 Save。
-- 业务只依赖 [`clover-server-engine/pkg/*`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/*.md) 转发层，不引 `internal/*`。
+- 业务只依赖 `clover-server-engine/pkg/*` 转发层，不引 `internal/*`。
 - **定时任务**：到点必须发生的事（行军到达 / 建造 / 征兵 / 挂机产出）**deadline 落数据**，
   定时器只做加速器（内存定时器随重启丢失）；**离线也要跑的任务 scope 禁止用 `owner`**。见 `patterns/timer.md`。
 - **多网关部署**：客户端是**静态配网关地址、不走服务发现**的 ⇒ 多网关必须由外部 LB 提供单入口，

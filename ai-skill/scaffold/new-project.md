@@ -171,6 +171,11 @@ auth:
   jwt_secret: "dev-only-change-me"     # JWT 签名密钥（HS256）；生产务必用强随机串
   token_ttl: 2h                        # 签发 token 有效期；<=0 用内置默认 2h
   verify_addr: "http://127.0.0.1:8051" # 游戏服校验凭证的账号服地址（game/gateway/all 必填，缺失即 panic）
+  # ⛔ 账号服 HTTP **默认要求 TLS**（`AuthConfig.ValidateAuthServer`），下面二选一，不能不选：
+  #    ① 生产/内网：配 tls.cert_file + tls.key_file（成对）；
+  #    ② 本机联调：显式 insecure_plaintext: true（明文，会打 Warn）。
+  #    都没有 ⇒ 账号服**拒绝启动**（口令与 JWT 不许静默明文裸奔）。
+  insecure_plaintext: true             # ← 本机联调示例；上线请删掉这行并改配 tls
 
 data:
   tier: "TierRedisMySQL"        # 禁止 TierMemory（会被 loadConfig 拒绝）
@@ -296,7 +301,7 @@ func (l *gameLogic) onXxx(c event.Ctx) error {
 ```
 
 **API 铁律**（与 `patterns/handler.md` 一致，照抄不会编不过）：
-- 签名 `func(c event.Ctx) error`；import [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event.md)。
+- 签名 `func(c event.Ctx) error`；import [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event/README.md)。
 - 取请求体 `c.BindMsg(&req)`；回包 `g.Reply(c, v)`；弹窗 `g.Alert(c, &proto.EAlertNotify{Title, Content})`。
 - `c.MarkReplied(body []byte)` 收 **[]byte**，一般不用它，用 `g.Reply` 即可。
 - 返回非 nil → 框架自动回错误包；返回 nil 且未回包 → 不回包（fire-and-forget）。

@@ -17,7 +17,7 @@
 
 ## 2. 手法：控制台试验台
 
-（本项目落地在 [`clover-client-unity-engine/Tools~/quic-harness/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Tools~/quic-harness/.md)，可直接照搬结构。）
+（本项目落地在 [`clover-client-unity-engine/Tools~/quic-harness/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Tools~/quic-harness/README.md)，可直接照搬结构。）
 
 1. **直接链接真实源码**：csproj 用 `<Compile Include="../../Runtime/Network/Quic/*.cs" />`
    链接引擎里的真实文件，只补**最小的 Unity 替身**（`Game.Logger` / 枚举 / 契约接口 / 大端读写）。   

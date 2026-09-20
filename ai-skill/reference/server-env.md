@@ -1,6 +1,6 @@
 # 服务器本地开发环境（windows-env）— 初始化与排障速查
 
-> 位置：[`clover-server-tools/windows-env/`](https://github.com/qw576483/clover-server-tools/blob/main/windows-env/.md)。开发 `clover-server-engine` 及其上层业务工程所需的
+> 位置：[`clover-server-tools/windows-env/`](https://github.com/qw576483/clover-server-tools/tree/main/windows-env)。开发 `clover-server-engine` 及其上层业务工程所需的
 > etcd / nats / redis / mysql 由 `core/env.exe`（Go 编译的 CLI）统一管理，**不要自己手工起服务**。
 > 本页只在**首次初始化 / 环境出故障**时查阅；代码正常可跑时不要动这里。
 > 详细说明见 `windows-env/core/README.md`。
@@ -90,7 +90,7 @@ windows-env/
 
 ## 5. 证书（mkcert / WebTransport）— 基本不用管
 
-位置：[`clover-server-tools/mkcert/`](https://github.com/qw576483/clover-server-tools/blob/main/mkcert/.md)。**日常开发不用管**；WebTransport 证书（`wt.pem`）由网关自动签发/轮换。
+位置：[`clover-server-tools/mkcert/`](https://github.com/qw576483/clover-server-tools/blob/main/mkcert/README.md)。**日常开发不用管**；WebTransport 证书（`wt.pem`）由网关自动签发/轮换。
 出问题直接看 `mkcert/排障.md`。几条铁律：
 
 - 证书**每台机器独立，绝不跨机器拷贝**（A 机拷到 B 机必报 `tls: unknown certificate`）。
@@ -152,7 +152,7 @@ dotnet run -c Release
 ## 8. 多节点 / 发布验证：用 manager（AI 自动化入口）
 
 §7 的探针验的是**单条连接的业务链路**；要验**集群层面**（多节点是否都活着、灰度下线能不能把存量连接
-迁走、滚动发布顺序对不对），用引擎控制台 [`clover-server-tools/manager`](https://github.com/qw576483/clover-server-tools/blob/main/manager.md)：
+迁走、滚动发布顺序对不对），用引擎控制台 [`clover-server-tools/manager`](https://github.com/qw576483/clover-server-tools/blob/main/manager/README.md)：
 
 ```powershell
 cd clover-server-tools/manager
@@ -185,7 +185,7 @@ admin 默认只绑回环 ⇒ **跨机管理要把 admin 配成内网可达地址
 ## 9. 容量 / 并发验证：用 robot（AI 自动化入口）
 
 §7 验的是**单条连接**的业务链路，§8 验的是**集群层面**；要验「**能同时登上来多少人 / 在线承载**」
-这类**量化**结果，用 [`clover-server-tools/robot`](https://github.com/qw576483/clover-server-tools/blob/main/robot.md)（机器人 / 自动化压测客户端）：
+这类**量化**结果，用 [`clover-server-tools/robot`](https://github.com/qw576483/clover-server-tools/blob/main/robot/README.md)（机器人 / 自动化压测客户端）：
 
 ```powershell
 cd clover-server-tools/robot
