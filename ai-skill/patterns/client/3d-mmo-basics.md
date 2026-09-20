@@ -65,7 +65,7 @@
   （`Assets/MapData/` 服务端 + `Assets/Resources/MapData/` 客户端，CloverMap 二进制 v1）；
   ★ **不要自己写地图格式 / 解码 / 格换算** —— 直接问引擎 `Game.Map.WalkableAt()`：
   它读的是服务端加载的**同一份字节**，格换算（floor 取整）、越界、位图方向由引擎保证两端口径一致
-  （契约见 `clover-server-engine/pkg/domain/mmo/mapdata/README.md`）；
+  （契约见 [`clover-server-engine/pkg/domain/mmo/mapdata/README.md`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/mmo/mapdata/README.md)）；
 - **角色半径采样**：中心 + 8 向（半径 0.35m）→ 避免"半个身子插进墙里"（**半径取多少是手感，属业务**）；
 - **分轴解算（先 X 后 Z）**：撞墙时贴墙**滑行**，而不是一头撞停（手感关键）；
 - **扫掠细分（每段 ≤0.25m）**：只检查终点会**穿墙**（**实测**：一次 7.5m 位移从建筑左侧直接跳到右侧，判定却是"可走"）；

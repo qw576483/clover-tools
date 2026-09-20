@@ -38,9 +38,9 @@ package logic
 
 import (
 	"{module}/game/def"
-	"clover-server-engine/pkg/app"
-	"clover-server-engine/pkg/shared/proto"
-	"clover-server-engine/pkg/transport/event"
+	"github.com/qw576483/clover-server-engine/pkg/app"
+	"github.com/qw576483/clover-server-engine/pkg/shared/proto"
+	"github.com/qw576483/clover-server-engine/pkg/transport/event"
 )
 
 type gameLogic struct{ g *app.Game }
@@ -79,7 +79,7 @@ func (l *gameLogic) onXxx(c event.Ctx) error {
 | 项 | 写法 |
 |---|---|
 | 签名 | `func(c event.Ctx) error` |
-| import | `clover-server-engine/pkg/transport/event` |
+| import | [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event.md) |
 | 取请求体 | `c.BindMsg(&req)` |
 | 回包 | `g.Reply(c, v)` |
 | 原始字节回包 | `c.MarkReplied(body []byte)` |

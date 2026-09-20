@@ -94,13 +94,14 @@ module {module}
 
 go 1.25.0
 
-require clover-server-engine v0.0.0
-
-replace clover-server-engine => <ENGINE_PATH>
+require github.com/qw576483/clover-server-engine v0.1.0
 ```
 
+> 引擎是标准 Go module：`go get github.com/qw576483/clover-server-engine@latest` 即可，**默认不需要 `replace`**。
 > 引擎 `go.mod` 声明 `go 1.25.0`，新工程保持一致。
-> `replace` **必须用绝对路径**（相对路径跨盘符/跨目录易失效，曾导致 `replacement directory does not exist`）。
+> 只有**要改引擎源码**时才加一行指到本地克隆（**必须绝对路径**，相对路径跨盘符/跨目录易失效，
+> 曾导致 `replacement directory does not exist`）：
+> `replace github.com/qw576483/clover-server-engine => <引擎本地绝对路径>`。
 > 建完先 `go mod tidy` 再 `go build`。
 
 ### 1.2 `server/main.go`
@@ -113,7 +114,7 @@ import (
 	"log"
 	"os"
 
-	"clover-server-engine/pkg/app"
+	"github.com/qw576483/clover-server-engine/pkg/app"
 
 	_ "{module}/game/logic" // 触发 logic 包 init() 完成挂载
 )
@@ -263,9 +264,9 @@ package logic
 
 import (
 	"{module}/game/def"
-	"clover-server-engine/pkg/app"
-	"clover-server-engine/pkg/shared/proto"
-	"clover-server-engine/pkg/transport/event"
+	"github.com/qw576483/clover-server-engine/pkg/app"
+	"github.com/qw576483/clover-server-engine/pkg/shared/proto"
+	"github.com/qw576483/clover-server-engine/pkg/transport/event"
 )
 
 type gameLogic struct{ g *app.Game }
@@ -295,7 +296,7 @@ func (l *gameLogic) onXxx(c event.Ctx) error {
 ```
 
 **API 铁律**（与 `patterns/handler.md` 一致，照抄不会编不过）：
-- 签名 `func(c event.Ctx) error`；import `clover-server-engine/pkg/transport/event`。
+- 签名 `func(c event.Ctx) error`；import [`clover-server-engine/pkg/transport/event`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/transport/event.md)。
 - 取请求体 `c.BindMsg(&req)`；回包 `g.Reply(c, v)`；弹窗 `g.Alert(c, &proto.EAlertNotify{Title, Content})`。
 - `c.MarkReplied(body []byte)` 收 **[]byte**，一般不用它，用 `g.Reply` 即可。
 - 返回非 nil → 框架自动回错误包；返回 nil 且未回包 → 不回包（fire-and-forget）。

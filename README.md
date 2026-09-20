@@ -44,3 +44,7 @@ go run ./cmd/table -config config.yaml
 | [clover-client-unity-engine](https://github.com/qw576483/clover-client-unity-engine) | Unity 客户端引擎 UPM 包 |
 | [clover-server-tools](https://github.com/qw576483/clover-server-tools) | 运行时 / 运维工具集 |
 | [clover-doc](https://github.com/qw576483/clover-doc) | 框架文档 |
+
+## 许可证
+
+[MIT](LICENSE)

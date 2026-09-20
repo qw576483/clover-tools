@@ -3,7 +3,7 @@
 // 看什么：
 //   ① 数据与格换算**不要自己写**：引擎 `Game.Map` 读的是服务端加载的**同一份字节**，
 //      格换算（floor 取整）/ 越界 / 位图方向由引擎保证两端口径一致（契约见
-//      `clover-server-engine/pkg/domain/mmo/mapdata/README.md`）；
+//      [`clover-server-engine/pkg/domain/mmo/mapdata/README.md`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/mmo/mapdata/README.md)）；
 //   ② 半径 8 向采样（避免"半个身子插进墙里"）
 //   ③ 分轴滑墙（撞墙贴墙走，而不是一头撞停）
 //   ④ 扫掠细分（每段 ≤0.25m，只检查终点会"穿墙"）

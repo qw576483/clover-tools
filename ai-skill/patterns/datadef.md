@@ -7,7 +7,7 @@
 ```go
 package datadef
 
-import "clover-server-engine/pkg/domain/data"
+import "github.com/qw576483/clover-server-engine/pkg/domain/data"
 
 var PlayerProfile = data.StructSchema{
     Type:       "player_profile",
@@ -31,8 +31,8 @@ type PlayerProfileData struct {
 
 ```go
 import (
-    "clover-server-engine/pkg/domain/data"
-    "clover-server-engine/pkg/domain/object"
+    "github.com/qw576483/clover-server-engine/pkg/domain/data"
+    "github.com/qw576483/clover-server-engine/pkg/domain/object"
 )
 
 var Bag = data.RecordSchema{

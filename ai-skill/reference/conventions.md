@@ -100,7 +100,7 @@ const MsgCreatePlayer = 10001
 | 要随掉线自动清理（buff 结算、在线巡检、临时状态） | scope **必须等于**该 owner |
 | 离线也要继续推进（行军 / 建造 / 挂机产出） | scope **故意不用** owner，加前缀即可（如 `"todo:"+playerID`） |
 
-> 因此 `"player:"+PlayerID` 这类 scope **不会**被自动清理；`clover-doc/server/concepts/timer.md` 早期示例的
+> 因此 `"player:"+PlayerID` 这类 scope **不会**被自动清理；[`clover-doc/server/concepts/timer.md`](https://github.com/qw576483/clover-doc/blob/main/server/concepts/timer.md) 早期示例的
 > 「下线自动清理」说法已按源码更正。落地模板见 `patterns/timer.md` §「到期型任务」。
 
 ## 7. 数据归属与分片：高频数据不跨节点共享（终态）
@@ -119,7 +119,7 @@ const MsgCreatePlayer = 10001
 分片（`Xxhash64(key) % total`），注册在 `clover/services/master/<index>`；节点表 / 健康交 etcd 
 **节点目录**（`clover/nodes/<nodeID>`，`type` 必须与 `state.Node.Type` 同取值）。
 `master_shard.total`（默认 1）或未配 etcd 时，全部回落原「单连接 + master 节点表」路径，行为不变。
-配置与验收见 `clover-doc/server/concepts/cluster.md`「Master 分片与节点目录」。客户端 / 网关侧无需改动。
+配置与验收见 [`clover-doc/server/concepts/cluster.md`](https://github.com/qw576483/clover-doc/blob/main/server/concepts/cluster.md)「Master 分片与节点目录」。客户端 / 网关侧无需改动。
 
 ## 8. 品牌与署名（硬约束，**每个游戏都要有**）
 

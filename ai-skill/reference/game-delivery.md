@@ -380,7 +380,7 @@ unity command editor_stop                      # ⑤ 退出 Play
 以及"完整版"还需要哪些常规项。**里面每条都是从真实翻车里提炼的**，跳过就会做出"能跑但没法玩"的东西。
 
 > ⚠️ **地图数据不要自己造**（2026-09 起）：格式契约 / Unity 烘焙 / 服务端加载 / 客户端查询**都是引擎能力** ——
-> `Editor/MapBake`（面板 `Clover/地图烘焙`）、`clover-server-engine/pkg/domain/mmo/mapdata/`（`Load` → `ApplyTo`）、
+> `Editor/MapBake`（面板 `Clover/地图烘焙`）、[`clover-server-engine/pkg/domain/mmo/mapdata/`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/mmo/mapdata/.md)（`Load` → `ApplyTo`）、
 > 客户端 `Game.Map`（`LoadFromResource` / `WalkableAt`），契约见 `pkg/domain/mmo/mapdata/README.md`。
 > **业务只写本地预测解算**（半径采样 / 分轴滑墙 / 扫掠细分）；
 > 出现"自己定义地图格式 / 自己解位图 / 自己算格换算"就是在重造轮子。

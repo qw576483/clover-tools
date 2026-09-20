@@ -1,6 +1,6 @@
 # 模块速查表（提炼自 clover-server-engine-index.md）
 
-业务只依赖 `clover-server-engine/pkg/*` 转发层（类型别名 + 工厂），不引 `internal/*`。
+业务只依赖 [`clover-server-engine/pkg/*`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/*.md) 转发层（类型别名 + 工厂），不引 `internal/*`。
 
 | 我想做某事 | 包 | 关键入口 |
 |---|---|---|

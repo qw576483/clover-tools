@@ -21,7 +21,7 @@
 ## 步 2：地图管线（**已下沉引擎**，业务只摆场景 / 填参数 / 摆出生点）
 
 > **2026-09 起地图管线是引擎能力，不要自己写导出器 / 加载器 / 解码器。**
-> 契约与边界见 `clover-server-engine/pkg/domain/mmo/mapdata/README.md`：
+> 契约与边界见 [`clover-server-engine/pkg/domain/mmo/mapdata/README.md`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/domain/mmo/mapdata/README.md)：
 > 格式契约（CloverMap 二进制 v1）、Unity 烘焙器（`Editor/MapBake/`，面板 `Clover/地图烘焙` + `-executeMethod`）、
 > Go 加载器（`mapdata.Load` → `ApplyTo`）、客户端查询（`Game.Map`）**全部在引擎里**。
 > 业务侧只剩三件事：**摆场景、给烘焙参数、摆出生点标记**。

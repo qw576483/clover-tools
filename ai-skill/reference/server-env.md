@@ -1,6 +1,6 @@
 # 服务器本地开发环境（windows-env）— 初始化与排障速查
 
-> 位置：`clover-server-tools/windows-env/`。开发 `clover-server-engine` 及其上层业务工程所需的
+> 位置：[`clover-server-tools/windows-env/`](https://github.com/qw576483/clover-server-tools/blob/main/windows-env/.md)。开发 `clover-server-engine` 及其上层业务工程所需的
 > etcd / nats / redis / mysql 由 `core/env.exe`（Go 编译的 CLI）统一管理，**不要自己手工起服务**。
 > 本页只在**首次初始化 / 环境出故障**时查阅；代码正常可跑时不要动这里。
 > 详细说明见 `windows-env/core/README.md`。
@@ -90,7 +90,7 @@ windows-env/
 
 ## 5. 证书（mkcert / WebTransport）— 基本不用管
 
-位置：`clover-server-tools/mkcert/`。**日常开发不用管**；WebTransport 证书（`wt.pem`）由网关自动签发/轮换。
+位置：[`clover-server-tools/mkcert/`](https://github.com/qw576483/clover-server-tools/blob/main/mkcert/.md)。**日常开发不用管**；WebTransport 证书（`wt.pem`）由网关自动签发/轮换。
 出问题直接看 `mkcert/排障.md`。几条铁律：
 
 - 证书**每台机器独立，绝不跨机器拷贝**（A 机拷到 B 机必报 `tls: unknown certificate`）。
@@ -137,7 +137,7 @@ dotnet run -c Release
 
 ### 证书（§5）与 TLS 正向握手
 
-`clover-server-tools/mkcert/certs/server.pem` 由 mkcert 签发，其 CA **已装进系统信任链**，
+[`clover-server-tools/mkcert/certs/server.pem`](https://github.com/qw576483/clover-server-tools/blob/main/mkcert/certs/server.pem) 由 mkcert 签发，其 CA **已装进系统信任链**，
 因此 `wss://127.0.0.1:8001/ws` 能**在不设任何证书校验回调**的前提下握手成功 ——
 这就是「TLS 正向握手」的验证方式，**不需要自己造证书**。
 
@@ -152,7 +152,7 @@ dotnet run -c Release
 ## 8. 多节点 / 发布验证：用 manager（AI 自动化入口）
 
 §7 的探针验的是**单条连接的业务链路**；要验**集群层面**（多节点是否都活着、灰度下线能不能把存量连接
-迁走、滚动发布顺序对不对），用引擎控制台 `clover-server-tools/manager`：
+迁走、滚动发布顺序对不对），用引擎控制台 [`clover-server-tools/manager`](https://github.com/qw576483/clover-server-tools/blob/main/manager.md)：
 
 ```powershell
 cd clover-server-tools/manager
@@ -180,12 +180,12 @@ admin 默认只绑回环 ⇒ **跨机管理要把 admin 配成内网可达地址
 「非回环 + 无 token」会被 `AdminConfig.Normalize` 拒绝启动，否则 `doctor` 会报 DOWN。
 另注意 manager 自身**不发**令牌头：被管节点一启用 token，`drain` / `shutdown` / `upstream` 会被 401 拒绝。
 
-完整说明（命令参数、drain 三种模式、k8s preStop 接法、排障）见 `clover-doc/server/tools/manager.md`。
+完整说明（命令参数、drain 三种模式、k8s preStop 接法、排障）见 [`clover-doc/server/tools/manager.md`](https://github.com/qw576483/clover-doc/blob/main/server/tools/manager.md)。
 
 ## 9. 容量 / 并发验证：用 robot（AI 自动化入口）
 
 §7 验的是**单条连接**的业务链路，§8 验的是**集群层面**；要验「**能同时登上来多少人 / 在线承载**」
-这类**量化**结果，用 `clover-server-tools/robot`（机器人 / 自动化压测客户端）：
+这类**量化**结果，用 [`clover-server-tools/robot`](https://github.com/qw576483/clover-server-tools/blob/main/robot.md)（机器人 / 自动化压测客户端）：
 
 ```powershell
 cd clover-server-tools/robot
@@ -221,4 +221,4 @@ go build -o robot.exe ./cmd/robot
    **调小 `--ramp` 即可验证**。
 3. **消息级限流**默认单连接 **64 帧/秒**，`--interval` 小于约 15ms 就会撞上 —— 那不是服务端上限。
 
-完整说明（参数 / 报告字段 / 退出码 / 排障）见 `clover-doc/server/tools/robot.md`。
+完整说明（参数 / 报告字段 / 退出码 / 排障）见 [`clover-doc/server/tools/robot.md`](https://github.com/qw576483/clover-doc/blob/main/server/tools/robot.md)。

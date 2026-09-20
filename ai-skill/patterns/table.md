@@ -85,7 +85,7 @@ cs	cs	c
 ## 第二步：打包成 xlsx（交给策划）
 
 ```bash
-cd clover-tools/table/core
+cd table/core
 go run ./cmd/table -pack -config config.yaml -batch
 ```
 
@@ -102,7 +102,7 @@ go run ./cmd/table -pack -config config.yaml -batch
 ## 第三步：打表出 tsv + 代码
 
 ```bash
-cd clover-tools/table/core
+cd table/core
 go run ./cmd/table -config config.yaml -batch
 ```
 

@@ -222,7 +222,7 @@ $x.SelectNodes('//test-run') | Select-Object -First 1 -ExpandProperty OuterXml
 
 | 现象 | 真因 | 正确做法 |
 |---|---|---|
-| WS 用例恒红：客户端 `State=Disconnected`、就是连不上 | Unity/Mono 的 `HttpListener` **不支持 WebSocket 升级**（`IsWebSocketRequest` 恒 false、`AcceptWebSocketAsync` 不可用），假服务端会对着合法的升级请求回 400 | 别用 `HttpListener`：改用裸 `TcpListener` 自做 RFC 6455 握手（范例 `clover-client-unity-engine/Tests/PlayMode/MiniWsServer.cs`） |
+| WS 用例恒红：客户端 `State=Disconnected`、就是连不上 | Unity/Mono 的 `HttpListener` **不支持 WebSocket 升级**（`IsWebSocketRequest` 恒 false、`AcceptWebSocketAsync` 不可用），假服务端会对着合法的升级请求回 400 | 别用 `HttpListener`：改用裸 `TcpListener` 自做 RFC 6455 握手（范例 [`clover-client-unity-engine/Tests/PlayMode/MiniWsServer.cs`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Tests/PlayMode/MiniWsServer.cs)） |
 | 推送 / 回包用例超时，但链路明明连上了 | 收包队列只在 `NetworkManager.Tick()` 里被排空（`Tick → TryTakePacket → DrainFrame`），测试里只 `yield return null` 的话帧会**一直躺在队列里** | 等待循环中**每帧泵一次** `nm.Tick()`（范例 `TransportLineLoopbackTests.WaitUntilPumping`） |
 | 等待类用例报"超时"，但**日志显示数据早收到了** | 等待助手把**有副作用的谓词求值了两次**：`while(!cond()) ...; Assert.IsTrue(cond())` —— 循环里那次成功后（如 `TryTakePacket` **已出队**）断言里再求值就成了 false | 助手内**只求值一次、用它断言**：`var ok = cond(); while(!ok && 未超时) { yield return null; ok = cond(); } Assert.IsTrue(ok, ...)`（范例 `Tests/PlayMode/QuicLoopbackTests.cs` 的 `WaitFor`） |
 

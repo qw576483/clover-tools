@@ -8,7 +8,7 @@ package logic
 import (
     "time"
 
-    "clover-server-engine/pkg/app"
+    "github.com/qw576483/clover-server-engine/pkg/app"
 )
 
 func init() {
@@ -83,7 +83,7 @@ func init() {
 // game/datadef/todo.go
 package datadef
 
-import "clover-server-engine/pkg/domain/data"
+import "github.com/qw576483/clover-server-engine/pkg/domain/data"
 
 // 待办表：一个玩家一条，Items = 任务名 → 绝对 deadline
 var PlayerTodo = data.StructSchema{
@@ -116,9 +116,9 @@ import (
 	"time"
 
 	"{module}/game/datadef"
-	"clover-server-engine/pkg/domain/data"
-	"clover-server-engine/pkg/foundation/logger"
-	"clover-server-engine/pkg/transport/event"
+	"github.com/qw576483/clover-server-engine/pkg/domain/data"
+	"github.com/qw576483/clover-server-engine/pkg/foundation/logger"
+	"github.com/qw576483/clover-server-engine/pkg/transport/event"
 )
 
 // scope 用显式前缀 "todo:"，★ 与引擎的 owner **不同名**：
@@ -246,7 +246,7 @@ func init() {
   给「离线也要跑」的任务加显式前缀（`"todo:"+playerID`）即与它错开。  
   反过来看：`"player:"+PlayerID` 这类 scope 与 owner **不同名**，**不会**被自动清理 ——  
   要依赖自动清理就得让 scope 等于 owner，否则业务得自己 `StopTimerGroup`   
-  （`clover-doc/server/concepts/timer.md` §作用域与清理 已按源码更正）。
+  （[`clover-doc/server/concepts/timer.md`](https://github.com/qw576483/clover-doc/blob/main/server/concepts/timer.md) §作用域与清理 已按源码更正）。
 - **数据里存绝对时刻**，重建时才换算成 `when`；不要在 `OnTimer` 里用 `time.Now().Add(剩余)` 糊 deadline。
 - **`OnTimer` 名字要稳定**：只有具名任务才能被 `StopTimer` / 迁移导出；匿名任务不可重建。
 - **结算幂等**：定时器 + 启动扫描 + 登录补算会同时命中同一任务。

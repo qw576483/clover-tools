@@ -1,6 +1,6 @@
 # 范式：Mount 挂载（四角色统一入口）
 
-> API 取自 `clover-server-engine/pkg/app/app.go`。模块路径用 `{module}` 占位，
+> API 取自 [`clover-server-engine/pkg/app/app.go`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/app/app.go)。模块路径用 `{module}` 占位，
 > 生成时替换为实际 module 名（如 `clover-cq`）。
 
 业务通过 `app.Mount(role, fn)` 挂载，在 `init()` 中注册。**四个角色只有一个入口**，
@@ -11,8 +11,8 @@ package logic
 
 import (
 	"{module}/game/def"
-	"clover-server-engine/pkg/app"
-	"clover-server-engine/pkg/transport/event" // ★ 是 transport/event，不是 event
+	"github.com/qw576483/clover-server-engine/pkg/app"
+	"github.com/qw576483/clover-server-engine/pkg/transport/event" // ★ 是 transport/event，不是 event
 )
 
 // 全局业务状态（持有 *app.Game 引用，供各 handler 用 l.g.Reply / l.g.Alert）

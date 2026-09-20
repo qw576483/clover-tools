@@ -108,7 +108,7 @@ go test ./internal/domain/<模块>/ -run <你的用例> -v -timeout 90s
 | E2 | Runtime/Presentation/UIWidgets.cs | `UIFactory` 从 `internal` 改 `public`（业务根本调不到的能力开口） |
 | E3 | Runtime/Core/Contracts.cs、Runtime/Resource/ResourceManager.cs | 新增 `IResourceManager.TryGet<T>(path)`：同步取"已驻留"资源（纯读、不触发加载） |
 
-**回归用例**：`Tests/` 对应用例（修复前红灯 → 修复后绿灯；真实编号与全文见 `clover-client-unity-engine/修复记录.md`）
+**回归用例**：`Tests/` 对应用例（修复前红灯 → 修复后绿灯；真实编号与全文见 [`clover-client-unity-engine/修复记录.md`](https://github.com/qw576483/clover-client-unity-engine/blob/main/修复记录.md)）
 **仍然存在的前提（业务必须自己接线）**：…（列清"引擎修了但业务还得做什么"，否则下次又踩）
 ```
 

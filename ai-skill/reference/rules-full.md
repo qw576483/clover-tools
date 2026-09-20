@@ -14,7 +14,7 @@ description: Clover 全栈开发 skill。**规则层：一字不许违**（**第
 
 沉淀 `clover-server-engine/` 与 `clover-client-unity-engine/` 的代码范式，固化团队约定。
 
-> **⚠️ 两份副本，改一处必须同步另一处**：仓库源 `clover-tools/ai-skill/` 与安装副本
+> **⚠️ 两份副本，改一处必须同步另一处**：仓库源 `ai-skill/` 与安装副本
 > **各宿主的 skill 安装目录各不相同**（一般在用户主目录下 `<宿主>/skills/ai-skill/`）—— 按你实际用的宿主自己定位。
 > 两者是**独立目录、不是软链**；只改一处 = 另一处仍是旧版。
 >
@@ -1017,7 +1017,7 @@ description: Clover 全栈开发 skill。**规则层：一字不许违**（**第
 5. **一次派一片**：普通子 agent 是同步的（派活 → 等回报 → 验收 → 再派下一片）。
    ⛔ 不许为了"并行快一点"改用异步通道 —— 省下的那点时间远不值模型不一致的代价。
 6. **⛔ 执行者不许改任何 skill**：任务书里**逐字写上** —— 项目级 `<项目根>/tools/ai-skill/`、
-   仓库里的全局源 `clover-tools/ai-skill/`、宿主的安装副本（`<宿主>/skills/ai-skill/`）**全都不许改**；
+   仓库里的全局源 `ai-skill/`、宿主的安装副本（`<宿主>/skills/ai-skill/`）**全都不许改**；
    发现 skill 里有错 / 过时 / 缺内容 ⇒ **写进回报，由主 agent 改**。
    （实测代价：有执行者顺手改了全局 skill 的能力表 —— 内容本身可能没错，但主 agent 与后续执行者
    会在**一个没人知情的基线**上继续判断，比改错更麻烦。）
@@ -1224,14 +1224,14 @@ description: Clover 全栈开发 skill。**规则层：一字不许违**（**第
 
 **clover-doc（skill 不够时必查，优先于源码）：**
 
-- `clover-doc/server/{concepts,development,examples,operations,tools,security}/`
-- `clover-doc/client/{concepts,development,examples,reference,tools}/`
+- [`clover-doc/server/{concepts,development,examples,operations,tools,security}/`](https://github.com/qw576483/clover-doc/blob/main/server/{concepts,development,examples,operations,tools,security}/.md)
+- [`clover-doc/client/{concepts,development,examples,reference,tools}/`](https://github.com/qw576483/clover-doc/blob/main/client/{concepts,development,examples,reference,tools}/.md)
 
 **引擎源码（clover-doc 说不清时才看）：**
 
-- `clover-server-engine/clover-server-engine-index.md`、`结构规则.md`、`pkg/<模块>/README.md`、
+- [`clover-server-engine/clover-server-engine-index.md`](https://github.com/qw576483/clover-server-engine/blob/main/clover-server-engine-index.md)、`结构规则.md`、`pkg/<模块>/README.md`、
   `pkg/shared/proto/{msg,push}.go`（消息号真身）、`internal/shared/proto/reply.go`
-- `clover-client-unity-engine/Runtime/<模块>/`、`Samples~/`、`Tests/`
+- [`clover-client-unity-engine/Runtime/<模块>/`](https://github.com/qw576483/clover-client-unity-engine/blob/main/Runtime/<模块>/.md)、`Samples~/`、`Tests/`
 
 ---
 

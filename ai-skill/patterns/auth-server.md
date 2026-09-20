@@ -5,7 +5,7 @@
 部署上可二选一：单进程全功能用 `server_type: all`（内嵌账号服），或 `server_type: auth` 
 独立起一个账号服进程。
 
-原理与取舍见 `clover-doc/server/security/auth-server.md`；本模板只给**可复制的操作**。
+原理与取舍见 [`clover-doc/server/security/auth-server.md`](https://github.com/qw576483/clover-doc/blob/main/server/security/auth-server.md)；本模板只给**可复制的操作**。
 
 ---
 
@@ -221,6 +221,6 @@ ag.OnHTTP("/auth/pay/notify", func(ic event.HTTPCtx) error {
 
 - `patterns/signup-login.md` — 登录 handler 模板
 - `patterns/client/network.md` — 客户端网络模板（含登录流程）
-- `clover-doc/server/security/auth-server.md` — 账号服原理、HTTP 契约与配置
-- `clover-doc/client/development/auth.md` — 客户端 `CloverAuth` 用法
+- [`clover-doc/server/security/auth-server.md`](https://github.com/qw576483/clover-doc/blob/main/server/security/auth-server.md) — 账号服原理、HTTP 契约与配置
+- [`clover-doc/client/development/auth.md`](https://github.com/qw576483/clover-doc/blob/main/client/development/auth.md) — 客户端 `CloverAuth` 用法
 - `服务器待做.md` §一 S2 留痕 — 支付链路（订单归账号服，引擎侧已闭环）

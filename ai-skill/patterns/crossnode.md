@@ -1,6 +1,6 @@
 # 范式：跨服事件投递
 
-> API 取自 `clover-server-engine/pkg/app/app.go`。**事件发送在 `Game` 上，不在 `Ctx` 上。**
+> API 取自 [`clover-server-engine/pkg/app/app.go`](https://github.com/qw576483/clover-server-engine/blob/main/pkg/app/app.go)。**事件发送在 `Game` 上，不在 `Ctx` 上。**
 > 模块路径用 `{module}` 占位，生成时替换为实际 module 名。
 
 跨服事件底层走 `CrossNodeEventBus`：本地短路 + 远程经 Master + NATS。
@@ -12,8 +12,8 @@ package logic
 
 import (
 	"{module}/game/def"
-	"clover-server-engine/pkg/app"
-	"clover-server-engine/pkg/transport/event"
+	"github.com/qw576483/clover-server-engine/pkg/app"
+	"github.com/qw576483/clover-server-engine/pkg/transport/event"
 )
 
 type gameLogic struct{ g *app.Game }
