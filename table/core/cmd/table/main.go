@@ -9,7 +9,7 @@
 //	table -pack -config config.yaml -batch     # 反向：源表 txt → xlsx（源表目录取 planning_dir）
 //	table -pack -pack-dir ./tables             # 反向，显式指定源表目录
 //
-// 配置见 config.example.yaml。详见仓库 README。
+// 配置见 config.yaml（仓库内的同名文件即示例）。详见仓库 README。
 package main
 
 import (
@@ -43,7 +43,7 @@ func defaultSideToDef(s string) def.Side {
 
 func main() {
 	configPath := flag.String("config", "", "配置文件路径；留空则扫描当前目录所有 .yaml/.yml 让你选择")
-	force := flag.Bool("force", false, "强制覆盖已存在的产物（打表的非 base 层 tsv / pack 的 xlsx）")
+	force := flag.Bool("force", false, "强制覆盖已存在的产物（仅对 -pack 打包的 xlsx 生效；打表侧 tsv 本就每次覆盖）")
 	pack := flag.Bool("pack", false, "反向：把源表 txt 打包成 xlsx（源表目录取 -pack-dir，或 -config 的 planning_dir）")
 	packDir := flag.String("pack-dir", "", "源表所在目录；留空则用 -config 里的 planning_dir")
 	batch := flag.Bool("batch", false, "非交互：不等待回车，失败以非 0 退出码结束（AI / 脚本调用必须带）")

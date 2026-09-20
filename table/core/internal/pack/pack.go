@@ -173,8 +173,9 @@ func sanitizeSheetName(name string) string {
 	if cleaned == "" {
 		cleaned = "Sheet1"
 	}
-	if len(cleaned) > 31 {
-		cleaned = cleaned[:31]
+	// Excel 工作表名上限 31 个字符：必须按 rune 截断，否则中文名会被切出非法 UTF-8。
+	if r := []rune(cleaned); len(r) > 31 {
+		cleaned = string(r[:31])
 	}
 	return cleaned
 }

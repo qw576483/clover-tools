@@ -1,8 +1,8 @@
 // Package gen 把 TableDef 生成为 TSV 与 Go/C# 代码。
 //
 // 设计要点（详见 README）：
-//   - base 产物（base_*.go / base_*.cs / tsv_base/*）每次覆盖；
-//   - 上层产物（*.go / *.cs / tsv/*）首次生成后不再覆盖，供业务填加载钩子；
+//   - base 产物（base_*.go / base_*.cs）与 tsv（tsv/ / Tsv/）每次覆盖；
+//   - 上层产物（*.go / *.cs）首次生成后不再覆盖，供业务填加载钩子；
 //   - 复合类型序列化约定：map 对用 |、kv 用 ;（兼容 :）；slice 元素用 ;；vector3 用 ; 或 ,。
 package gen
 

@@ -43,7 +43,7 @@ type Config struct {
 	dir string `yaml:"-"`
 }
 
-// 返回内置默认配置（用于生成 config.example.yaml 与兜底）。
+// 返回内置默认配置（兜底用）。
 func Default() *Config {
 	return &Config{
 		PlanningDir:  "../策划",
