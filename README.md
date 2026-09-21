@@ -4,6 +4,10 @@ Clover 生态的**开发期工具集**。
 
 > AI 交付 skill 已独立成仓库：[**clover-ai-skill**](https://github.com/qw576483/clover-ai-skill)
 
+## 从没用过 Clover？
+
+照着 **[新手指南：用 AI 从零做一个 Clover 游戏](https://github.com/qw576483/clover-doc/blob/main/ai/ai-quick-start.md)** 走一遍即可 —— 从装 Unity 6 到让 AI 开出第一个工程，全程不用自己写代码。
+
 ## 内容一览
 
 | 目录 | 是什么 | 详细说明 |
