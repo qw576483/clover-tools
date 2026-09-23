@@ -50,7 +50,7 @@ func (t *BaseDemoTable) Load(content string) error {
 	r := csv.NewReader(strings.NewReader(content))
 	r.Comma = '\t'
 	r.FieldsPerRecord = -1
-	r.TrimLeadingSpace = true
+	r.TrimLeadingSpace = false
 	recs, err := r.ReadAll()
 	if err != nil {
 		return fmt.Errorf("BaseDemoTable: 解析 tsv 失败: %w", err)

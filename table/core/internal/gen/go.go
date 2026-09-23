@@ -62,6 +62,8 @@ func GoType(t def.ColumnType) string {
 		return "map[int]string"
 	case def.TypeSliceInt:
 		return "[]int"
+	case def.TypeSliceFloat:
+		return "[]float32"
 	case def.TypeSliceString:
 		return "[]string"
 	case def.TypeVector3:
@@ -319,6 +321,23 @@ func parseSliceInt(s string) []int {
 	return out
 }
 
+// parseSliceFloat 解析 "a;b;c"（';' 分隔的浮点数，如冷却 22;19.5;17）。
+func parseSliceFloat(s string) []float32 {
+	out := []float32{}
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return out
+	}
+	for _, e := range strings.Split(s, ";") {
+		e = strings.TrimSpace(e)
+		if e == "" {
+			continue
+		}
+		out = append(out, parseFloat32(e))
+	}
+	return out
+}
+
 // parseSliceString 解析 "a;b;c"（';' 分隔，保留原样）。
 func parseSliceString(s string) []string {
 	out := []string{}
@@ -420,7 +439,9 @@ func goBaseTable(pkg string, cols []def.Column, m goTableMeta) string {
 	fmt.Fprintf(&b, "\tr := csv.NewReader(strings.NewReader(content))\n")
 	fmt.Fprintf(&b, "\tr.Comma = '\\t'\n")
 	fmt.Fprintf(&b, "\tr.FieldsPerRecord = -1\n")
-	fmt.Fprintf(&b, "\tr.TrimLeadingSpace = true\n")
+	// ⛔ 必须为 false：Comma='\t' 时 TrimLeadingSpace 会按 unicode.IsSpace 吃掉前导制表符，
+	// 每个空单元格吞掉其后的一个 '\t' ⇒ 该行其后字段整体左移且不报错（客户端 Split('\t') 不受影响 ⇒ 两端分叉）。
+	fmt.Fprintf(&b, "\tr.TrimLeadingSpace = false\n")
 	fmt.Fprintf(&b, "\trecs, err := r.ReadAll()\n")
 	fmt.Fprintf(&b, "\tif err != nil {\n\t\treturn fmt.Errorf(\"%s: 解析 tsv 失败: %%w\", err)\n\t}\n", m.BaseTable)
 	fmt.Fprintf(&b, "\tif len(recs) < 1 {\n\t\treturn fmt.Errorf(\"%s: tsv 无数据\")\n\t}\n", m.BaseTable)
@@ -450,6 +471,8 @@ func goBaseTable(pkg string, cols []def.Column, m goTableMeta) string {
 			fmt.Fprintf(&b, "\t\trow.%s = parseMapIntString(cell(rec, %d))\n", fld, i)
 		case def.TypeSliceInt:
 			fmt.Fprintf(&b, "\t\trow.%s = parseSliceInt(cell(rec, %d))\n", fld, i)
+		case def.TypeSliceFloat:
+			fmt.Fprintf(&b, "\t\trow.%s = parseSliceFloat(cell(rec, %d))\n", fld, i)
 		case def.TypeSliceString:
 			fmt.Fprintf(&b, "\t\trow.%s = parseSliceString(cell(rec, %d))\n", fld, i)
 		case def.TypeVector3:

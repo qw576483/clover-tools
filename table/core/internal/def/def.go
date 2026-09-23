@@ -23,7 +23,42 @@ const (
 	TypeSliceInt
 	TypeSliceString
 	TypeVector3
+	// TypeSliceFloat 是后加的（bug#6）：`[]float32`（源表别名 float32[] / []float / float[] …）。
+	// 追加在末尾，保证既有常量的数值不变（不持久化，但改动顺序会让日志/调试对不上）。
+	TypeSliceFloat
 )
+
+// String 返回该类型在源表第 2 行使用的规范 token（用于报错与日志）。
+func (t ColumnType) String() string {
+	switch t {
+	case TypeInt:
+		return "int"
+	case TypeInt32:
+		return "int32"
+	case TypeInt64:
+		return "int64"
+	case TypeFloat32:
+		return "float32"
+	case TypeFloat64:
+		return "float64"
+	case TypeString:
+		return "string"
+	case TypeMapIntInt:
+		return "map[int]int"
+	case TypeMapIntString:
+		return "map[int]string"
+	case TypeSliceInt:
+		return "[]int"
+	case TypeSliceString:
+		return "[]string"
+	case TypeVector3:
+		return "vector3"
+	case TypeSliceFloat:
+		return "[]float32"
+	default:
+		return "?"
+	}
+}
 
 // 数据使用侧。
 type Side uint8
