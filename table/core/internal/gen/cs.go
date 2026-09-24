@@ -165,6 +165,30 @@ namespace Table
             return rec[i];
         }
 
+        // SplitTsv 把 tsv 文本切成「非空行」：行分隔只看 '\n'（并剥掉行尾 '\r'，兼容 CRLF）；
+        // 空行（含只有空白 / tab 的行）跳过。与服务器 Go 侧 splitTSV 同口径。
+        public static string[] SplitTsv(string content)
+        {
+            var raw = content.Split('\n');
+            var res = new List<string>();
+            foreach (var l in raw)
+            {
+                if (l.Trim().Length == 0) continue;
+                res.Add(l.TrimEnd('\r'));
+            }
+            return res.ToArray();
+        }
+
+        // CheckRowWidth 行宽必须与表头一致：少一列 / 多一列都意味着这行**错位**了。
+        // 返回 null = 通过；否则返回原因（带表名 / 行号 / 期望列数 / 实际列数）。
+        public static string CheckRowWidth(string table, string[] header, string[] rec, int line)
+        {
+            if (rec.Length != header.Length)
+                return table + ": 第 " + line + " 行有 " + rec.Length + " 列，表头 " + header.Length
+                    + " 列（列数不一致 ⇒ 数据错位，拒绝加载）";
+            return null;
+        }
+
         public static int ToInt(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return 0;
@@ -270,8 +294,204 @@ namespace Table
             return v;
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // TSV 解析：按列名取值 + 严格校验（口径与服务器 Go 侧一致）
+    //
+    // ★ 为什么按**列名**取值，而不是按下标 Cell(rec, i)：
+    //   下标把「生成的代码」和「源表的列顺序」硬绑在一起 —— 策划在源表中间插一列，
+    //   其后所有字段就会整体错位，而且**不报任何错**：跑起来数值全错、看起来却一切正常。
+    //   按列名取值（表头先建 name→index 索引）与列序无关。
+    // ★ 为什么是 Split('\t')：打表工具写出的 tsv 是「纯 '\t' 拼接、不加引号、不做转义」，
+    //   与服务器 Go 侧（strings.Split）逐列一致。
+    // ★ Load 保持**宽松**（无返回值、不抛、不校验）—— 既有调用方语义不变；
+    //   严格校验另开 Validate(path, out error)：列数不一致 / 表头缺列 / 整型浮点列非法值。
+    // 口径出处：项目 clover-project-cr，文件 server/game/table/tsv.go（与 Go 侧生成模板同源）。
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // TableCols 表头索引 + 取值器：取值一律按**列名**。
+    public sealed class TableCols
+    {
+        private readonly string table;
+        private readonly string[] raw;
+        private readonly Dictionary<string, int> idx = new Dictionary<string, int>();
+
+        public TableCols(string tableName, string[] header)
+        {
+            table = tableName;
+            raw = new string[header.Length];
+            for (int i = 0; i < header.Length; i++)
+            {
+                var h = header[i].Trim();
+                raw[i] = h;
+                if (h.Length == 0) continue; // 打表工具不写空列名；真出现就跳过（按该名取值恒为空）
+                if (!idx.ContainsKey(h)) idx[h] = i;
+            }
+        }
+
+        public string TableName { get { return table; } }
+
+        // Header 还原表头（报错信息用）：形如 [#0=id #1=key …]，按列下标顺序。
+        public string Header()
+        {
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < raw.Length; i++)
+            {
+                if (raw[i].Length == 0) continue;
+                if (sb.Length > 0) sb.Append(' ');
+                sb.Append('#').Append(i).Append('=').Append(raw[i]);
+            }
+            return sb.ToString();
+        }
+
+        // Missing 返回表头里缺失的列名（逗号分隔）；返回空串 = 全都在。
+        public string Missing(string[] names)
+        {
+            var miss = new List<string>();
+            foreach (var n in names)
+            {
+                if (!idx.ContainsKey(n)) miss.Add(n);
+            }
+            return string.Join(", ", miss.ToArray());
+        }
+
+        // Str 取字符串列（列不存在 / 越界 / 单元格为空都返回空串）。
+        public string Str(string[] rec, string col)
+        {
+            int i;
+            if (!idx.TryGetValue(col, out i) || i < 0 || i >= rec.Length) return "";
+            return rec[i].Trim();
+        }
+
+        // Int 取整型列（空单元格 → 0；非整数仍按 0 —— 要拦脏数据请用 Validate）。
+        public int Int(string[] rec, string col) { return TableParsers.ToInt(Str(rec, col)); }
+
+        // Long 取 long 列（口径同 Int）。
+        public long Long(string[] rec, string col) { return TableParsers.ToLong(Str(rec, col)); }
+
+        // Float 取 float 列（口径同 Int）。
+        public float Float(string[] rec, string col) { return TableParsers.ToFloat(Str(rec, col)); }
+    }
+
+    // TsvColSpec 严格校验的一列规格：列名 + 类型 token（int / int32 / int64 / float / string）。
+    public struct TsvColSpec
+    {
+        public readonly string Name;
+        public readonly string Kind;
+
+        public TsvColSpec(string name, string kind)
+        {
+            Name = name;
+            Kind = kind;
+        }
+    }
+
+    // TsvValidator 严格校验（不加载数据）：三类口径与服务器 Go 侧一一对应 ——
+    //   ① 某行字段数与表头不一致；② 表头缺本实现要读的列；③ 整型 / 浮点列出现非法值。
+    // 返回 null = 通过；否则返回失败原因（带表名 / 行号 / 列名 / 原文）。
+    // ⚠️ 复合类型（map / slice / vector3）不在此校验 —— 打表期已逐格校验。
+    public static class TsvValidator
+    {
+        public static string Validate(string table, string content, TsvColSpec[] specs)
+        {
+            var lines = TableParsers.SplitTsv(content);
+            if (lines.Length < 1) return table + ": tsv 无内容";
+            var header = lines[0].Split('\t');
+            var cols = new TableCols(table, header);
+
+            var names = new string[specs.Length];
+            for (int i = 0; i < specs.Length; i++) names[i] = specs[i].Name;
+            var miss = cols.Missing(names);
+            if (miss.Length > 0)
+                return table + ": 表头缺少列 " + miss + "；实际表头 = [" + cols.Header() + "]";
+
+            for (int li = 1; li < lines.Length; li++)
+            {
+                var rec = lines[li].Split('\t');
+                var werr = TableParsers.CheckRowWidth(table, header, rec, li + 1);
+                if (werr != null) return werr;
+
+                foreach (var sp in specs)
+                {
+                    var s = cols.Str(rec, sp.Name);
+                    if (s.Length == 0) continue; // 合法留空 = 0 / 空容器
+                    if (sp.Kind == "string") continue;
+                    if (sp.Kind == "float")
+                    {
+                        float fv;
+                        if (!float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out fv))
+                            return CellErr(table, li + 1, sp.Name, s, "浮点数");
+                        continue;
+                    }
+                    long iv;
+                    if (!long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out iv))
+                        return CellErr(table, li + 1, sp.Name, s, "整数");
+                    if (sp.Kind == "int32" && (iv < int.MinValue || iv > int.MaxValue))
+                        return CellErr(table, li + 1, sp.Name, s, "整数(int32)");
+                }
+            }
+            return null;
+        }
+
+        private static string CellErr(string table, int line, string col, string val, string want)
+        {
+            return table + ": 第 " + line + " 行列 " + col + " 的值 \"" + val + "\" 不是" + want;
+        }
+    }
 }
 `
+}
+
+// 返回「按**列名**取值」的 C# 表达式：cols.<取值器>(rec, "<列名>")。
+// ⛔ 不许退回按下标 TableParsers.Cell(rec, i) —— 那会把生成物与源表列序绑死（插列即静默整体错位）。
+// 复合类型（map / slice / vector3）仍复用运行时里既有的静默解析器（打表期已逐格校验），
+// 只把入参改为按列名取。
+func csColExpr(c def.Column) string {
+	name := fmt.Sprintf("%q", c.Name)
+	switch c.Type {
+	case def.TypeInt, def.TypeInt32:
+		return "cols.Int(rec, " + name + ")"
+	case def.TypeInt64:
+		return "cols.Long(rec, " + name + ")"
+	case def.TypeFloat32, def.TypeFloat64:
+		return "cols.Float(rec, " + name + ")"
+	case def.TypeString:
+		return "cols.Str(rec, " + name + ")"
+	case def.TypeMapIntInt:
+		return "TableParsers.ParseMapIntInt(cols.Str(rec, " + name + "))"
+	case def.TypeMapIntString:
+		return "TableParsers.ParseMapIntString(cols.Str(rec, " + name + "))"
+	case def.TypeSliceInt:
+		return "TableParsers.ParseSliceInt(cols.Str(rec, " + name + "))"
+	case def.TypeSliceFloat:
+		return "TableParsers.ParseSliceFloat(cols.Str(rec, " + name + "))"
+	case def.TypeSliceString:
+		return "TableParsers.ParseSliceString(cols.Str(rec, " + name + "))"
+	case def.TypeVector3:
+		return "TableParsers.ParseVector3(cols.Str(rec, " + name + "))"
+	default:
+		// 非预期分支：CsType 对未识别类型也回落 string，故按字符串取（与服务器侧同规则）。
+		// 新增列类型时必须同时补 CsType / GoType / 本开关与运行时解析器。
+		return "cols.Str(rec, " + name + ")"
+	}
+}
+
+// 返回严格校验（TsvColSpec）用的类型 token。
+// 只区分 int / int32 / int64 / float / string —— 复合类型（map / slice / vector3）
+// 不在此校验：打表期 def.ValidateCell 已逐格校验过，且两端解析器语义一致。
+func csSpecKind(t def.ColumnType) string {
+	switch t {
+	case def.TypeInt:
+		return "int"
+	case def.TypeInt32:
+		return "int32"
+	case def.TypeInt64:
+		return "int64"
+	case def.TypeFloat32, def.TypeFloat64:
+		return "float"
+	default:
+		return "string"
+	}
 }
 
 func csBaseTable(t *def.TableDef, cols []def.Column, m csTableMeta) string {
@@ -299,44 +519,52 @@ func csBaseTable(t *def.TableDef, cols []def.Column, m csTableMeta) string {
 	fmt.Fprintf(&b, "\t\tpublic %s Get(%s id) => index.ContainsKey(id) ? index[id] : null;\n", m.BaseRow, m.PkCsType)
 	fmt.Fprintf(&b, "\t\tpublic int Count => rows.Count;\n")
 	fmt.Fprintf(&b, "\t\tpublic List<%s> All() => rows;\n\n", m.BaseRow)
+	// TsvSpecs：严格校验规格（列名 + 类型 token），与下面 Load 的取值列同源。
+	fmt.Fprintf(&b, "\t\t// TsvSpecs 本表的严格校验规格（列名 + 类型 token），供 Validate 使用。\n")
+	fmt.Fprintf(&b, "\t\tpublic static readonly TsvColSpec[] TsvSpecs = new TsvColSpec[]\n\t\t{\n")
+	for _, c := range cols {
+		fmt.Fprintf(&b, "\t\t\tnew TsvColSpec(%q, %q),\n", c.Name, csSpecKind(c.Type))
+	}
+	fmt.Fprintf(&b, "\t\t};\n\n")
+
+	// Load / LoadText：按**列名**取值；宽松（不校验、不抛），保持既有调用语义。
 	fmt.Fprintf(&b, "\t\t// Load 从 tsv 加载（首行为列名表头，'\\t' 分隔）。整体替换旧数据。\n")
+	fmt.Fprintf(&b, "\t\t// ★ 取值按**列名**（不是按下标）：源表插列 / 换列序不会让字段整体错位。\n")
+	fmt.Fprintf(&b, "\t\t// ★ 本方法**宽松**：不校验、不抛异常（既有调用方语义不变）；要拦脏数据用 Validate。\n")
+	fmt.Fprintf(&b, "\t\t// 口径出处：clover-project-cr/server/game/table/tsv.go（与服务器 Go 侧同源）。\n")
 	fmt.Fprintf(&b, "\t\tpublic void Load(string path)\n\t\t{\n")
-	fmt.Fprintf(&b, "\t\t\tvar lines = File.ReadAllLines(path);\n")
+	fmt.Fprintf(&b, "\t\t\tLoadText(File.ReadAllText(path));\n")
+	fmt.Fprintf(&b, "\t\t}\n\n")
+	fmt.Fprintf(&b, "\t\t// LoadText 同 Load，但直接吃 tsv 文本（redis / 内存源用）。\n")
+	fmt.Fprintf(&b, "\t\tpublic void LoadText(string content)\n\t\t{\n")
+	fmt.Fprintf(&b, "\t\t\tvar lines = TableParsers.SplitTsv(content);\n")
 	fmt.Fprintf(&b, "\t\t\tif (lines.Length < 1) return;\n")
+	fmt.Fprintf(&b, "\t\t\tvar header = lines[0].Split('\\t');\n")
+	fmt.Fprintf(&b, "\t\t\tvar cols = new TableCols(%q, header);\n", m.Name)
 	fmt.Fprintf(&b, "\t\t\trows = new List<%s>();\n", m.BaseRow)
 	fmt.Fprintf(&b, "\t\t\tindex = new Dictionary<%s, %s>();\n", m.PkCsType, m.BaseRow)
 	fmt.Fprintf(&b, "\t\t\tfor (int li = 1; li < lines.Length; li++)\n\t\t\t{\n")
-	fmt.Fprintf(&b, "\t\t\t\tif (string.IsNullOrEmpty(lines[li])) continue;\n")
 	fmt.Fprintf(&b, "\t\t\t\tvar rec = lines[li].Split('\\t');\n")
 	fmt.Fprintf(&b, "\t\t\t\tvar row = new %s();\n", m.BaseRow)
-	for i, c := range cols {
-		fld := ToGoIdent(c.Name)
-		switch c.Type {
-		case def.TypeInt, def.TypeInt32:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ToInt(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeInt64:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ToLong(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeFloat32, def.TypeFloat64:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ToFloat(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeString:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.Cell(rec, %d);\n", fld, i)
-		case def.TypeMapIntInt:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseMapIntInt(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeMapIntString:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseMapIntString(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeSliceInt:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseSliceInt(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeSliceFloat:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseSliceFloat(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeSliceString:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseSliceString(TableParsers.Cell(rec, %d));\n", fld, i)
-		case def.TypeVector3:
-			fmt.Fprintf(&b, "\t\t\t\trow.%s = TableParsers.ParseVector3(TableParsers.Cell(rec, %d));\n", fld, i)
-		}
+	for _, c := range cols {
+		fmt.Fprintf(&b, "\t\t\t\trow.%s = %s;\n", ToGoIdent(c.Name), csColExpr(c))
 	}
 	fmt.Fprintf(&b, "\t\t\t\trows.Add(row);\n")
 	fmt.Fprintf(&b, "\t\t\t\tindex[row.%s] = row;\n", ToGoIdent(cols[0].Name))
 	fmt.Fprintf(&b, "\t\t\t}\n")
+	fmt.Fprintf(&b, "\t\t}\n\n")
+
+	// Validate / ValidateText：严格校验（不加载数据）—— 三类口径与 Go 侧一一对应。
+	fmt.Fprintf(&b, "\t\t// Validate 严格校验 tsv（**不加载**）：列数不一致 / 表头缺列 / 整型浮点列非法值\n")
+	fmt.Fprintf(&b, "\t\t// ⇒ 返回 false 并把原因写进 error；口径与服务器 Go 侧一一对应。\n")
+	fmt.Fprintf(&b, "\t\tpublic bool Validate(string path, out string error)\n\t\t{\n")
+	fmt.Fprintf(&b, "\t\t\terror = TsvValidator.Validate(%q, File.ReadAllText(path), TsvSpecs);\n", m.Name)
+	fmt.Fprintf(&b, "\t\t\treturn error == null;\n")
+	fmt.Fprintf(&b, "\t\t}\n\n")
+	fmt.Fprintf(&b, "\t\t// ValidateText 同 Validate，但直接吃 tsv 文本。\n")
+	fmt.Fprintf(&b, "\t\tpublic bool ValidateText(string content, out string error)\n\t\t{\n")
+	fmt.Fprintf(&b, "\t\t\terror = TsvValidator.Validate(%q, content, TsvSpecs);\n", m.Name)
+	fmt.Fprintf(&b, "\t\t\treturn error == null;\n")
 	fmt.Fprintf(&b, "\t\t}\n")
 	fmt.Fprintf(&b, "\t}\n}\n")
 	return b.String()

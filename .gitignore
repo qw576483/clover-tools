@@ -1,4 +1,4 @@
-# npm 依赖（可视化验证工作区）
+# node 依赖（当前 visual-verify/ 是 Python 工具链，没有 npm 工作区；这条只是防以后引入 JS 工具时误提交）
 node_modules/
 
 # Python 字节码缓存（脚本运行产生）

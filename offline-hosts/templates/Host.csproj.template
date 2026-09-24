@@ -1,0 +1,74 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ========================================================================
+       offline self-check host  "@@HOST_NAME@@"  (not a Unity project, not packaged;
+       runs in seconds, no editor, no Play).
+
+       WHY: plain `dotnet build <unityProject>.slnx` cannot see Assets/Scripts/**
+       until the editor has produced the assembly csproj, so it reports "nothing
+       to compile": zero information. This host compiles the REAL project
+       sources against the REAL Unity managed DLLs and runs real assertions.
+
+       Paths (see ../Directory.Build.props, auto-imported by MSBuild):
+         $(CloverAssetsDir)         e.g. <root>\client\Assets
+         $(CloverEngineRuntimeDir)  engine package Runtime\ directory
+         $(UnityManagedDir)         <unity editor>\Data\Managed
+
+       Linking rules, learned the hard way:
+         * EnableDefaultCompileItems=false makes the <Compile> list a WHITELIST.
+           A client file that a compiled file references must be added here or
+           the host breaks with CS0103/CS0246: that is the intended alarm:
+           "this host stopped covering the truth".
+         * One file must be listed exactly ONCE (a duplicate => CS2002).
+         * `$(...)` in an Include that expands to EMPTY => that whole Include
+           vanishes silently => the run proves nothing. Assert coverage: the
+           program prints its own source count, and the build must produce a dll.
+       ======================================================================== -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>@@TFM@@</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>@@HOST_NAME@@</AssemblyName>
+    <RootNamespace>@@NS@@</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <!-- CS0436: a shim that re-declares a UnityEngine type wins over the reference (deliberate) -->
+    <NoWarn>CS0649;CS0169;CS0414;CS0067;CS0436</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- the host itself -->
+    <Compile Include="Program.cs" />
+    <!-- engine facade shim: a hand-written stand-in for the engine types the
+         compiled sources touch (see templates\shim\README.md). Reuse ONE shim
+         file across hosts instead of copying it, so a signature change breaks in
+         one place. It is COMMENTED OUT because a <Compile> pointing at a missing
+         file stops the build with CS2001: this host must build before you have
+         written a single line of it. Uncomment once shim\EngineShim.cs exists:
+    <Compile Include="shim\EngineShim.cs" />
+    -->
+
+    <!-- project sources: add ONE line per family this host owns, e.g.
+         <Compile Include="$(CloverAssetsDir)\Scripts\Def\*.cs" />
+         <Compile Include="$(CloverAssetsDir)\Scripts\Core\*.cs" />
+         engine sources the project forwards to, e.g.
+         <Compile Include="$(CloverEngineRuntimeDir)\Core\Rng.cs" /> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityManagedDir)\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <!-- add further modules only when the sources actually need them:
+         UnityEngine.UIModule / TextRenderingModule / IMGUIModule /
+         JSONSerializeModule / ScriptingModule -->
+  </ItemGroup>
+
+</Project>

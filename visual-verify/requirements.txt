@@ -1,0 +1,5 @@
+# Dependencies of the visual-verify scripts (Python 3.9+).
+# Install:  python -m pip install -r requirements.txt
+numpy>=1.22      # diff / SSIM / per-shot statistics
+Pillow>=9.0      # image IO + LANCZOS resize (deterministic)
+fonttools>=4.30  # font-metrics.py: read glyph outlines straight from the font file

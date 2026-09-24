@@ -1,0 +1,119 @@
+<Project>
+
+  <!-- ========================================================================
+       offline-hosts harness: Directory.Build.props (shared by every host)
+
+       Resolves three things once, for every *.csproj under the hosts root:
+         CloverUnityDir          directory that CONTAINS the Unity Assets folder
+         CloverAssetsDir         <CloverUnityDir>\<CloverAssetsDirName>
+         CloverEngineRuntimeDir  engine package's Runtime directory
+         UnityEditorRoot         Unity editor install (managed DLLs live there)
+
+       NO FIXED RELATIVE DEPTH: each value is resolved by a bounded upward
+       search (levels 0..8 above this file), so a host may sit at any depth.
+       Override order (first one that is set wins):
+         1) -p:CloverUnityDir=<dir>            / -p:CloverEngineRuntimeDir=<dir>
+         2) env CLOVER_UNITY_DIR               / env CLOVER_ENGINE_ROOT
+         3) upward search from this file's directory
+       Unity editor: -p:UnityEditorRoot=<dir>  ->  env UNITY_EDITOR_ROOT  ->  Hub.
+
+       Entry point: use Invoke-OfflineHosts.ps1 / New-OfflineHost.ps1, which
+       resolve UnityEditorRoot for you. A bare `dotnet run` inside a host dir
+       needs UNITY_EDITOR_ROOT (or -p:UnityEditorRoot=) when the default layout
+       does not match: the error target below prints the exact path it tried
+       AND the Unity versions it did find, instead of an MSBuild wall of text.
+       ======================================================================== -->
+
+  <PropertyGroup>
+    <CloverAssetsDirName Condition="'$(CloverAssetsDirName)' == ''">Assets</CloverAssetsDirName>
+    <CloverEngineDirName Condition="'$(CloverEngineDirName)' == ''">clover-client-unity-engine</CloverEngineDirName>
+
+    <!-- ancestor ladder: _Cd0 = this file's dir, _CdN = N levels up -->
+    <_Cd0>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</_Cd0>
+    <_Cd1>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</_Cd1>
+    <_Cd2>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..'))</_Cd2>
+    <_Cd3>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..'))</_Cd3>
+    <_Cd4>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..'))</_Cd4>
+    <_Cd5>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\..'))</_Cd5>
+    <_Cd6>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\..\..'))</_Cd6>
+    <_Cd7>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\..\..\..'))</_Cd7>
+    <_Cd8>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\..\..\..\..\..'))</_Cd8>
+  </PropertyGroup>
+
+  <!-- ================================================================ unity dir == -->
+  <PropertyGroup>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and '$(CLOVER_UNITY_DIR)' != ''">$(CLOVER_UNITY_DIR)</CloverUnityDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CloverUnityDir)' == ''">
+    <CloverUnityDir Condition="Exists('$(_Cd0)\client\$(CloverAssetsDirName)')">$(_Cd0)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd0)\$(CloverAssetsDirName)')">$(_Cd0)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd1)\client\$(CloverAssetsDirName)')">$(_Cd1)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd1)\$(CloverAssetsDirName)')">$(_Cd1)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd2)\client\$(CloverAssetsDirName)')">$(_Cd2)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd2)\$(CloverAssetsDirName)')">$(_Cd2)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd3)\client\$(CloverAssetsDirName)')">$(_Cd3)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd3)\$(CloverAssetsDirName)')">$(_Cd3)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd4)\client\$(CloverAssetsDirName)')">$(_Cd4)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd4)\$(CloverAssetsDirName)')">$(_Cd4)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd5)\client\$(CloverAssetsDirName)')">$(_Cd5)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd5)\$(CloverAssetsDirName)')">$(_Cd5)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd6)\client\$(CloverAssetsDirName)')">$(_Cd6)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd6)\$(CloverAssetsDirName)')">$(_Cd6)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd7)\client\$(CloverAssetsDirName)')">$(_Cd7)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd7)\$(CloverAssetsDirName)')">$(_Cd7)</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd8)\client\$(CloverAssetsDirName)')">$(_Cd8)\client</CloverUnityDir>
+    <CloverUnityDir Condition="'$(CloverUnityDir)' == '' and Exists('$(_Cd8)\$(CloverAssetsDirName)')">$(_Cd8)</CloverUnityDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CloverAssetsDir Condition="'$(CloverAssetsDir)' == ''">$(CloverUnityDir)\$(CloverAssetsDirName)</CloverAssetsDir>
+  </PropertyGroup>
+
+  <!-- =============================================================== engine dir == -->
+  <PropertyGroup>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and '$(CLOVER_ENGINE_ROOT)' != ''">$(CLOVER_ENGINE_ROOT)\Runtime</CloverEngineRuntimeDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CloverEngineRuntimeDir)' == ''">
+    <CloverEngineRuntimeDir Condition="Exists('$(_Cd0)\$(CloverEngineDirName)\Runtime')">$(_Cd0)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd0)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd0)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd1)\$(CloverEngineDirName)\Runtime')">$(_Cd1)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd1)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd1)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd2)\$(CloverEngineDirName)\Runtime')">$(_Cd2)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd2)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd2)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd3)\$(CloverEngineDirName)\Runtime')">$(_Cd3)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd3)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd3)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd4)\$(CloverEngineDirName)\Runtime')">$(_Cd4)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd4)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd4)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd5)\$(CloverEngineDirName)\Runtime')">$(_Cd5)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd5)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd5)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd6)\$(CloverEngineDirName)\Runtime')">$(_Cd6)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd6)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd6)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd7)\$(CloverEngineDirName)\Runtime')">$(_Cd7)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd7)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd7)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd8)\$(CloverEngineDirName)\Runtime')">$(_Cd8)\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+    <CloverEngineRuntimeDir Condition="'$(CloverEngineRuntimeDir)' == '' and Exists('$(_Cd8)\Packages\$(CloverEngineDirName)\Runtime')">$(_Cd8)\Packages\$(CloverEngineDirName)\Runtime</CloverEngineRuntimeDir>
+  </PropertyGroup>
+
+  <!-- ========================================================= unity editor dir == -->
+  <PropertyGroup>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == '' and '$(UNITY_EDITOR_ROOT)' != ''">$(UNITY_EDITOR_ROOT)</UnityEditorRoot>
+    <UnityHubRoot Condition="'$(UnityHubRoot)' == '' and '$(UNITY_HUB_ROOT)' != ''">$(UNITY_HUB_ROOT)</UnityHubRoot>
+    <UnityHubRoot Condition="'$(UnityHubRoot)' == ''">$(ProgramFiles)\Unity\Hub\Editor</UnityHubRoot>
+    <UnityEditorRoot Condition="'$(UnityEditorRoot)' == '' and '$(UnityEditorVersion)' != ''">$(UnityHubRoot)\$(UnityEditorVersion)\Editor</UnityEditorRoot>
+    <UnityManagedDir Condition="'$(UnityManagedDir)' == ''">$(UnityEditorRoot)\Data\Managed</UnityManagedDir>
+  </PropertyGroup>
+
+  <!-- ============================================================= error stories == -->
+  <Target Name="CloverCheckPaths" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <_CloverUnityVer Include="$(UnityHubRoot)\*" />
+    </ItemGroup>
+    <Error Condition="'$(CloverUnityDir)' == ''"
+           Text="offline-hosts: no Unity Assets folder found. Searched '$(_Cd0)' .. '$(_Cd8)' for 'client\$(CloverAssetsDirName)' or '$(CloverAssetsDirName)'. Pass -p:CloverUnityDir=&lt;dir&gt; or set env CLOVER_UNITY_DIR." />
+    <Error Condition="'$(UnityEditorRoot)' == ''"
+           Text="offline-hosts: no Unity editor resolved. Pass -p:UnityEditorRoot=&lt;editor dir&gt; or set env UNITY_EDITOR_ROOT (example: UNITY_EDITOR_ROOT=C:\Program Files\Unity\Hub\Editor\&lt;version&gt;\Editor). Versions currently under '$(UnityHubRoot)': @(_CloverUnityVer->'%(Filename)', ' | ')" />
+    <Error Condition="'$(UnityEditorRoot)' != '' and !Exists('$(UnityManagedDir)\UnityEngine\UnityEngine.CoreModule.dll')"
+           Text="offline-hosts: Unity editor resolved to '$(UnityEditorRoot)' but '$(UnityManagedDir)\UnityEngine\UnityEngine.CoreModule.dll' is missing. Versions currently under '$(UnityHubRoot)': @(_CloverUnityVer->'%(Filename)', ' | ')" />
+  </Target>
+
+</Project>

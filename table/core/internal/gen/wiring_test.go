@@ -67,8 +67,8 @@ func TestSliceFloatRowAssignment(t *testing.T) {
 	if !strings.Contains(goCode, "Cooldown []float32") {
 		t.Errorf("Go 行结构体未把 cooldown 生成为 []float32：\n%s", goCode)
 	}
-	if !strings.Contains(goCode, "row.Cooldown = parseSliceFloat(cell(rec, 0))") {
-		t.Errorf("Go Load 未按 parseSliceFloat 解析 cooldown:\n%s", goCode)
+	if !strings.Contains(goCode, "row.Cooldown = parseSliceFloat(c.str(rec, \"cooldown\"))") {
+		t.Errorf("Go Load 未按列名取 cooldown 再走 parseSliceFloat:\n%s", goCode)
 	}
 
 	csCode := csBaseTable(&def.TableDef{Name: "champion_skill_cs"}, cols, csTableMeta{
@@ -81,8 +81,28 @@ func TestSliceFloatRowAssignment(t *testing.T) {
 	if !strings.Contains(csCode, "public float[] Cooldown;") {
 		t.Errorf("C# 行结构体未把 cooldown 生成为 float[]：\n%s", csCode)
 	}
-	if !strings.Contains(csCode, "row.Cooldown = TableParsers.ParseSliceFloat(TableParsers.Cell(rec, 0));") {
-		t.Errorf("C# Load 未按 ParseSliceFloat 解析 cooldown:\n%s", csCode)
+	if !strings.Contains(csCode, "row.Cooldown = TableParsers.ParseSliceFloat(cols.Str(rec, \"cooldown\"));") {
+		t.Errorf("C# Load 未按列名取 cooldown 再走 ParseSliceFloat:\n%s", csCode)
+	}
+	// C# 侧同样不许按下标取值（插列会静默整体错位），且不得引入 throw（既有 Load 无返回值，抛会改契约）。
+	if strings.Contains(csCode, "TableParsers.Cell(rec, ") {
+		t.Errorf("C# Load 仍在按下标取值（TableParsers.Cell(rec, i)）：插列会静默整体错位\n%s", csCode)
+	}
+	if strings.Contains(csCode, "throw ") {
+		t.Errorf("C# base 不得抛异常（Load 无返回值 ⇒ 抛会改契约）\n%s", csCode)
+	}
+	// 严格校验必须是**另开的可选入口**，既有 Load 签名不变。
+	for _, want := range []string{
+		"public void Load(string path)",
+		"public void LoadText(string content)",
+		"public bool Validate(string path, out string error)",
+		"public bool ValidateText(string content, out string error)",
+		"public static readonly TsvColSpec[] TsvSpecs",
+		`new TsvColSpec("cooldown", "string"),`, // 复合类型（[]float32）不在严格校验范围内（打表期已逐格校验）,
+	} {
+		if !strings.Contains(csCode, want) {
+			t.Errorf("C# base 缺少 %q：\n%s", want, csCode)
+		}
 	}
 }
 

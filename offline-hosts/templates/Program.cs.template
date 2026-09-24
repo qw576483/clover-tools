@@ -1,0 +1,61 @@
+// ============================================================================
+//  @@HOST_NAME@@ -- offline self-check host: real assertions, seconds, no editor.
+//
+//  Contract (mirrors every host in tools/probes/hosts):
+//    * one line per assertion: `[ OK ] name` or `[FAIL] name -- detail`
+//    * last line: `CHECK ok=<n> fail=<n>` then `ALL PASS` / `FAILED: ...`
+//    * exit code 0 only when every assertion passed -- a host that cannot say
+//      "no" is not a check.
+//  Output stays ASCII so the console encoding can never mangle it.
+// ============================================================================
+using System;
+using System.Collections.Generic;
+
+namespace @@NS@@
+{
+    internal static class Program
+    {
+        private static readonly List<string> Failures = new List<string>();
+        private static int _ok;
+
+        private static void Check(string what, bool ok, string detail = "")
+        {
+            var suffix = string.IsNullOrEmpty(detail) ? "" : " -- " + detail;
+            if (ok)
+            {
+                _ok++;
+                Console.WriteLine("[ OK ] " + what);
+            }
+            else
+            {
+                Failures.Add(what + suffix);
+                Console.WriteLine("[FAIL] " + what + suffix);
+            }
+        }
+
+        private static void Info(string line)
+        {
+            Console.WriteLine("[INFO] " + line);
+        }
+
+        private static int Main()
+        {
+            // ------------------------------------------------------------------
+            // assertions: read the REAL project sources / config text and compare
+            // against an authoritative number stated in the same test. Never
+            // re-derive the expectation from the code under test.
+            // ------------------------------------------------------------------
+            Check("host started", true);
+
+            Info("assertions ok=" + _ok);
+            Console.WriteLine("CHECK ok=" + _ok + " fail=" + Failures.Count);
+            if (Failures.Count > 0)
+            {
+                Console.WriteLine("FAILED: " + string.Join(" | ", Failures));
+                return 1;
+            }
+            Console.WriteLine("ALL PASS");
+            return 0;
+        }
+    }
+}

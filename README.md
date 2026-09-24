@@ -17,7 +17,11 @@ QQ 群：**clover-engine交流1群** `1101150552`
 | 目录 | 是什么 | 详细说明 |
 |---|---|---|
 | `table/` | **打表工具**：一键把策划表（`xls` / `xlsx`）生成服务器（Go）与客户端（C#）的 tsv 数据 + 强类型代码，并输出对照表 | [`table/README.md`](table/README.md) |
-| `visual-verify/` | 可视化验证工作区（npm 工作目录，依赖不入库，使用前先 `npm i`） | — |
+| `visual-verify/` | **可视化验收判定工具**（Python 工具链：`visual-diff.py` / `shot-stats.py` / `font-metrics.py`，用法与判据见该目录 `README.md`） | [`visual-verify/README.md`](visual-verify/README.md) |
+
+> **`visual-verify/` 为什么不用 pixelmatch/npm**：① 免 node 依赖、离线可跑；② `visual-diff.py` 的 YIQ 口径与 pixelmatch 等价，且能同时给 `min-ssim` / 带状差异清单。
+>
+> 依赖清单是真文件：`visual-verify/requirements.txt`（`python -m pip install -r visual-verify/requirements.txt`）。
 
 ## table 怎么用
 
